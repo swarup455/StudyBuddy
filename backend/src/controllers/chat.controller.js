@@ -191,7 +191,7 @@ export const sendMessageToChannel = asyncHandler(async (req, res) => {
         const channelId = req.params.id;
         const senderId = req.user._id;
 
-        const currChannel = await Channel.findOne({ joinId: channelId });
+        const currChannel = await Channel.findOne({ channelId });
         //extract the required Id
         if (!currChannel) {
             new ApiError(401, "channel not found!!")

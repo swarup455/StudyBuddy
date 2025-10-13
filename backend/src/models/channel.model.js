@@ -6,12 +6,18 @@ const channelSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    channelAbout: {
+        type: String
+    },
+    channelLogo: {
+        type: String
+    },
     channelAdmin: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
-    joinId: {
+    channelId: {
         type: String,
         unique: true,
         required: true,
@@ -40,15 +46,7 @@ const channelSchema = new mongoose.Schema({
                 enum: ['Viewer', 'Editor'],
                 default: 'Viewer'
             },
-            status: {
-                type: String,
-                enum: ['joined', 'pending', 'left'],
-                default: 'pending'
-            },
             joinedAt: {
-                type: Date,
-            },
-            leftAt: {
                 type: Date,
             }
         }
