@@ -30,20 +30,24 @@ export const getColorClass = (name) => {
     return colors[Math.abs(hash) % colors.length];
 };
 
-export const UserLogo = ({ name, about, isOnline = false }) => {
+export const UserLogo = ({ name, about, role, isAdmin, isOnline = false }) => {
     const initials = getInitials(name);
     const colorClass = getColorClass(name);
-    
+
     return (
-        <div className="w-1/2 flex items-center justify-start gap-3">
-            <div className="relative w-fit">
-                <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${colorClass} flex items-center justify-center text-white text-sm font-medium`}>
+        <div className="h-full w-full flex items-center justify-start gap-2 md:gap-3">
+            <div className="relative w-fit h-full">
+                <div className={`h-full aspect-square rounded-full bg-gradient-to-br ${colorClass} flex items-center justify-center text-white text-sm font-medium`}>
                     {initials}
                 </div>
                 <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 ${isOnline ? 'bg-green-500' : 'bg-zinc-400'} border-2 border-white dark:border-zinc-900 rounded-full`} />
-            </div> 
-            <p>{name}</p>
-            <p className="text-zinc-300 dark:text-zinc-500 line-clamp-1">{about}</p>
+            </div>
+            <div className="flex items-center gap-1">
+                <p className=" text-xs sm:text-sm">{name}</p>
+                <p className="text-zinc-300 dark:text-zinc-300 line-clamp-1 text-xs sm:text-sm">{about}</p>
+                <p className={`text-xs sm:text-sm ${role.toLowerCase()!=="editor" ? "text-zinc-400 dark:text-zinc-400" : "text-green-400"}`}>{role}</p>
+            </div>
+            {isAdmin && <p className="flex-1 text-end text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm">Admin</p>}
         </div>
     );
 };

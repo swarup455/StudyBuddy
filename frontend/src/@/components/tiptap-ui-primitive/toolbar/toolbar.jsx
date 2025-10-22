@@ -80,7 +80,7 @@ export const Toolbar = React.forwardRef(({ children, className, variant = "fixed
       role="toolbar"
       aria-label="toolbar"
       data-variant={variant}
-      className={cn("tiptap-toolbar h-10 sm:h-15 lg:h-20 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800", className)}
+      className={cn("tiptap-toolbar bg-zinc-100 dark:bg-zinc-900 ", className)}
       {...props}>
       {children}
     </div>

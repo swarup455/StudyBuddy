@@ -74,10 +74,10 @@ import content from "@/components/tiptap-templates/simple/data/content.json"
 //colaboration with yjs
 import CollaborationCaret from '@tiptap/extension-collaboration-caret'
 import Collaboration from '@tiptap/extension-collaboration'
-import * as Y from 'yjs'
-import { WebsocketProvider } from "y-websocket"
+import * as Y from 'yjs';
 import { useParams } from "react-router-dom"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
+import { saveDocument } from "../../../../reduxToolkit/channel/channelSlice"
 
 const MainToolbarContent = ({
   onHighlighterClick,
@@ -156,15 +156,16 @@ const MobileToolbarContent = ({
   </>
 )
 
-export function SimpleEditor() {
+export function SimpleEditor({doc, provider}) {
   const isMobile = useIsMobile()
   const { height } = useWindowSize()
   const [mobileView, setMobileView] = React.useState("main")
   const toolbarRef = React.useRef(null)
+
+  //getting channel id and auth user
   const { channelId } = useParams()
-  const doc = new Y.Doc()
-  const provider = new WebsocketProvider("ws://localhost:1234", `${channelId}`, doc)
   const { authUser } = useSelector((state) => state.auth);
+  const dispatch = useDispatch()
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -201,7 +202,7 @@ export function SimpleEditor() {
         document: doc,
       }),
       CollaborationCaret.configure({
-        provider,
+        provider: provider,
         user: {
           name: `${authUser.fullName}`,
           color: "#" + ((1 << 24) * Math.random() | 0).toString(16),
@@ -229,8 +230,25 @@ export function SimpleEditor() {
     }
   }, [isMobile, mobileView])
 
+  React.useEffect(() => {
+    let timeoutId;
+    const handleUpdate = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const update = Y.encodeStateAsUpdate(doc);
+        const encoded = btoa(String.fromCharCode(...update));
+        dispatch(saveDocument({ update: encoded, channelId }));
+      }, 2000);
+    };
+    doc.on("update", handleUpdate);
+    return () => {
+      doc.off("update", handleUpdate);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [channelId, dispatch]);
+
   return (
-    <div className="w-full dark:bg-zinc-900 dark:text-zinc-100">
+    <div className="w-full h-full overflow-y-auto dark:bg-zinc-900 dark:text-zinc-100">
       <EditorContext.Provider value={{ editor }}>
         <Toolbar
           ref={toolbarRef}

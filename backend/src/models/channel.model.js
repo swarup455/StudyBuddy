@@ -68,12 +68,9 @@ const channelSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    documents: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Document'
-        }
-    ]
+    document: {
+        type: String
+    }
 }, { timestamps: true })
 
 // Index for faster queries
@@ -83,28 +80,21 @@ channelSchema.index({ 'participants.guestTempId': 1 });
 // Virtual to get current active editors count
 channelSchema.virtual('activeEditorsCount').get(function () {
     return this.participants.filter(p =>
-        p.role === 'editor' && p.status === 'active'
+        p.role === 'Editor'
     ).length;
-});
-
-// Virtual to get current active participants count
-channelSchema.virtual('activeParticipantsCount').get(function () {
-    return this.participants.filter(p => p.status === 'active').length;
 });
 
 // Method to check if channel can accept more editors
 channelSchema.methods.canAddEditor = function () {
     const activeEditors = this.participants.filter(p =>
-        p.role === 'editor' && p.status === 'active'
+        p.role === 'Editor'
     ).length;
     return activeEditors < this.maxEditors;
 };
 
 // Method to check if channel can accept more participants
 channelSchema.methods.canAddParticipant = function () {
-    const activeParticipants = this.participants.filter(p =>
-        p.status === 'active'
-    ).length;
+    const activeParticipants = this.participants.length;
     return activeParticipants < this.maxParticipants;
 };
 

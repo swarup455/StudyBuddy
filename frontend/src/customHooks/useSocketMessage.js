@@ -13,8 +13,8 @@ export const useSocketMessages = (selectedUser) => {
         if (!socket) return;
 
         const handleNewMessage = async (newMessage) => {
-            if (newMessage.senderId !== authUser._id) {
-                if (selectedUser && newMessage.senderId === selectedUser?._id) {
+            if (newMessage.senderId._id !== authUser._id) {
+                if (selectedUser && newMessage.senderId._id === selectedUser?._id) {
                     dispatch(addNewMessage(newMessage));
                     await api.put(`/mark/${newMessage._id}`);
                 } else {
@@ -30,15 +30,16 @@ export const useSocketMessages = (selectedUser) => {
     }, [selectedUser, dispatch]);
 };
 
-export const useSocketChannelMessages = (activeChannelId) => {
+export const useSocketChannelMessages = ({channelId, authUser}) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
         const socket = getSocket();
         if (!socket) return;
 
+        socket.emit("joinChannel", { channelId: channelId, user: authUser });
         const handleChannelMessage = async (newMessage) => {
-            if (activeChannelId && newMessage.channelId === activeChannelId) {
+            if (channelId && newMessage.channelId.channelId === channelId) {
                 dispatch(addNewMessage(newMessage));
                 try {
                     await api.put(`/mark/${newMessage._id}`);
@@ -53,6 +54,7 @@ export const useSocketChannelMessages = (activeChannelId) => {
 
         return () => {
             socket.off("newChannelMessage", handleChannelMessage);
+            socket.emit("leaveChannel", { channelId: channelId, user: authUser });
         };
-    }, [activeChannelId, dispatch]);
+    }, [channelId, authUser, dispatch]);
 };

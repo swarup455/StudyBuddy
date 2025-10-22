@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import api from "./authApi.js"
 import toast from "react-hot-toast"
-import { connectSocket as initSocket, disconnectSocket as closeSocket } from "../../../utils/socket.js"
 import { extractErrorMessage } from "../../../utils/errorHandler.js"
 
 export const checkAuth = createAsyncThunk(
@@ -9,10 +8,6 @@ export const checkAuth = createAsyncThunk(
         try {
             const userData = await api.get("/get-user");
             const user = userData.data.data;
-            //fetching connect socket after fetching user
-            initSocket(user._id, (users) => {
-                dispatch(setOnlineUsers(users));
-            });
             return user;
         } catch (error) {
             return rejectWithValue(extractErrorMessage(error));
@@ -36,7 +31,6 @@ export const logout = createAsyncThunk(
     "auth/logout", async (_, { rejectWithValue}) => {
         try {
             await api.get("/logout");
-            closeSocket();
         } catch (error) {
             return rejectWithValue(extractErrorMessage(error));
         }

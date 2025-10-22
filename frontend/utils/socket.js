@@ -8,9 +8,9 @@ export const connectSocket = (userId, onOnlineUsers) => {
             withCredentials: true,
         });
 
-        if (onOnlineUsers) {
-            socket.on("getOnlineUsers", onOnlineUsers);
-        }
+        socket.on("getOnlineUsers", (users) => {
+            if (onOnlineUsers) onOnlineUsers(users);
+        });
     }
     return socket;
 };

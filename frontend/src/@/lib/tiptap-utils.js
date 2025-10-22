@@ -1,5 +1,5 @@
 import { NodeSelection, Selection, TextSelection } from "@tiptap/pm/state"
-
+import api from "../../reduxToolkit/channel/channelApi";
 export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
 export const MAC_SYMBOLS = {
@@ -259,27 +259,26 @@ export function isNodeTypeSelected(editor, types = []) {
  * @returns Promise resolving to the URL of the uploaded image
  */
 export const handleImageUpload = async (file, onProgress, abortSignal) => {
-  // Validate file
-  if (!file) {
-    throw new Error("No file provided")
-  }
+  if (!file) throw new Error("No file provided");
+  if (file.size > MAX_FILE_SIZE) throw new Error("File too large");
 
-  if (file.size > MAX_FILE_SIZE) {
-    throw new Error(`File size exceeds maximum allowed (${MAX_FILE_SIZE / (1024 * 1024)}MB)`)
-  }
+  const formData = new FormData();
+  formData.append("file", file);
 
-  // For demo/testing: Simulate upload progress. In production, replace the following code
-  // with your own upload implementation.
-  for (let progress = 0; progress <= 100; progress += 10) {
-    if (abortSignal?.aborted) {
-      throw new Error("Upload cancelled")
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    onProgress?.({ progress })
-  }
+  const res = await api.post("/upload-image", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    onUploadProgress: (progressEvent) => {
+      const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+      onProgress?.({ progress });
+    },
+    signal: abortSignal
+  });
 
-  return "/images/tiptap-ui-placeholder-image.jpg"
-}
+  const imageUrl = res.data.data.url;
+  // must return the public image URL Cloudinary gives you
+  return imageUrl;
+};
+
 
 const ATTR_WHITESPACE =
   // eslint-disable-next-line no-control-regex
@@ -314,7 +313,7 @@ export function isAllowedUri(
   }
 
   return (!uri || uri.replace(ATTR_WHITESPACE, "").match(new RegExp(// eslint-disable-next-line no-useless-escape
-  `^(?:(?:${allowedProtocols.join("|")}):|[^a-z]|[a-z0-9+.\-]+(?:[^a-z+.\-:]|$))`, "i")));
+    `^(?:(?:${allowedProtocols.join("|")}):|[^a-z]|[a-z0-9+.\-]+(?:[^a-z+.\-:]|$))`, "i")));
 }
 
 export function sanitizeUrl(inputUrl, baseUrl, protocols) {

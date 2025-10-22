@@ -5,6 +5,8 @@ import { User } from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { io } from "../index.js";
+import { Message } from "../models/message.model.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 //function to generate Ids
 export const generateId = () => {
@@ -26,10 +28,7 @@ export const createChannel = asyncHandler(async (req, res) => {
     if (channelName.trim().length > 50) {
         throw new ApiError(400, "Channel name must not exceed 50 characters!");
     }
-    const sameNameChannel = await Channel.findOne({ channelName });
-    if (sameNameChannel) {
-        throw new ApiError(400, `Channel with name "${channelName}" already exist!`);
-    }
+
     let channelId;
     let isUnique = false;
     let attempts = 0;
@@ -51,7 +50,7 @@ export const createChannel = asyncHandler(async (req, res) => {
     }
 
     // Create channel with admin as first participant
-    const channel = await Channel.create({
+    const newChannel = await Channel.create({
         channelName: channelName.trim(),
         channelAdmin: userId,
         channelId,
@@ -66,7 +65,10 @@ export const createChannel = asyncHandler(async (req, res) => {
         ]
     });
     // Populate user details if needed
-    await channel.populate('channelAdmin', 'fullName email profilePic');
+    const channel = await Channel.findById(newChannel._id)
+        .populate('channelAdmin', 'fullName email profilePic')
+        .populate('participants.user', 'fullName email profilePic');
+
     return res
         .status(201)
         .json(
@@ -77,7 +79,8 @@ export const createChannel = asyncHandler(async (req, res) => {
 //controler to join a channel
 export const joinChannel = asyncHandler(async (req, res) => {
     const { channelId } = req.params;
-    const { userId, guest } = req.body;
+    const { guest } = req.body;
+    const userId = req.user._id;
 
     //channel validation
     if (!channelId) {
@@ -99,24 +102,36 @@ export const joinChannel = asyncHandler(async (req, res) => {
 
     //user validation
     let user;
-    if (userId) {
+    if (!isGuest) {
         user = await User.findById(userId);
         if (!user) {
             throw new ApiError(404, "User not found!!");
         }
     }
 
-    // Check if user is already a participant
-    const existingParticipant = channel.participants.find(
-        p => p.user && p.user.toString() === userId
-    );
-    if (existingParticipant) {
-        return res
-            .status(400)
-            .json(
-                new ApiResponse(400, { currentChannel: channelId }, "You are already an participant!")
-            )
+    //Check if user/guest is already a participant
+    let existingParticipant;
+    if (isGuest) {
+        // For guests, check by guestTempId or guestName (optional - depends on your logic)
+        existingParticipant = channel.participants.find(
+            p => p.isGuest && p.guestName === guest.trim()
+        );
+    } else {
+        // For authenticated users
+        existingParticipant = channel.participants.find(
+            p => !p.isGuest && p.user?.toString() === userId.toString()
+        );
     }
+    if (existingParticipant) {
+        return res.status(400).json(
+            new ApiResponse(
+                400,
+                { channel, participant: existingParticipant },
+                "You are already a participant!"
+            )
+        );
+    }
+
     //check if channel can add more participants
     if (!channel.canAddParticipant()) {
         throw new ApiError(403, `Channel has reached maximum capacity of ${channel.maxParticipants} participants!`)
@@ -153,7 +168,7 @@ export const joinChannel = asyncHandler(async (req, res) => {
 
 //controller to delete a channel
 export const deleteChannel = asyncHandler(async (req, res) => {
-    const { channelId } = req.body;
+    const { channelId } = req.params;
     const userId = req.user._id;
 
     if (!channelId) {
@@ -173,20 +188,23 @@ export const deleteChannel = asyncHandler(async (req, res) => {
     const channelName = channel.channelName;
 
     // Delete using channelId
+    await Message.deleteMany({ channelId });
     await Channel.deleteOne({ channelId });
+
     return res
         .status(200)
         .json(
-            new ApiResponse(201, {}, `Channel "${channelName}" deleted Successfully!!`)
+            new ApiResponse(201, { channelId: channelId }, `Channel "${channelName}" deleted Successfully!!`)
         )
 })
 
 //controller to leave a channel
 export const leaveChannel = asyncHandler(async (req, res) => {
     const { channelId } = req.params;
-    const { isGuest, guestTempId, newAdminId } = req.body;
+    const { guestTempId, newAdminId } = req.body;
     const userId = req.user?._id;
 
+    const isGuest = !userId;
     //channel validation
     const channel = await Channel.findOne({ channelId });
     if (!channel) {
@@ -221,6 +239,8 @@ export const leaveChannel = asyncHandler(async (req, res) => {
                 throw new ApiError(401, "Provide new AdminId to leave the channel!!")
             } else {
                 channel.channelAdmin = newAdminId;
+                const user = channel.participants.findOne(newAdminId);
+                user.role = "Editor";
             }
         } else {
             await Channel.deleteOne({ _id: channel._id });
@@ -251,14 +271,14 @@ export const leaveChannel = asyncHandler(async (req, res) => {
 export const kickOutUser = asyncHandler(async (req, res) => {
     const { channelId } = req.params;
     const { userId, guestTempId } = req.body;
-    
+
     //validation of channel
-    const channel = await Channel.findOne({channelId});
-    if(!channel){
+    const channel = await Channel.findOne({ channelId });
+    if (!channel) {
         throw new ApiError(404, "Channel not found!!");
     }
     //only admin can kick out user
-    if(req.user && req.user._id.toString() !== channel.channelAdmin.toString() ){
+    if (req.user && req.user._id.toString() !== channel.channelAdmin.toString()) {
         throw new ApiError(400, "Only admin can kick out user!!")
     }
 
@@ -302,7 +322,7 @@ export const kickOutUser = asyncHandler(async (req, res) => {
                     : "You have left the channel successfully."
             )
         );
-    
+
 })
 
 //controller to update role of an user
@@ -320,7 +340,7 @@ export const updateRole = asyncHandler(async (req, res) => {
     }
     // Check if user is the channel admin
     if (channel.channelAdmin.toString() !== req.user._id.toString()) {
-        throw new ApiError(403, "Only channel change members roles!!");
+        throw new ApiError(403, "Only Admin can change members roles!!");
     }
     // find() returns array, use find() not findOne()
     const currUser = channel.participants.find(p =>
@@ -337,7 +357,7 @@ export const updateRole = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .json(
-            new ApiResponse(200, { user: currUser }, "Update role successfully!!")
+            new ApiResponse(200, { user: currUser, role }, "Update role successfully!!")
         )
 
 })
@@ -356,10 +376,10 @@ export const updateChannel = asyncHandler(async (req, res) => {
     } = req.body;
 
     //getting channel logo from req.file
-    let channelLogo;
+    let imgUrl;
     if (req.file) {
         const uploadResponse = await uploadOnCloudinary(req.file.path);
-        channelLogo = uploadResponse.secure_url;
+        imgUrl = uploadResponse.secure_url;
     }
     //find channel using id
     const channel = await Channel.findOne({ channelId });
@@ -373,7 +393,7 @@ export const updateChannel = asyncHandler(async (req, res) => {
     const updates = {};
     if (channelName && channelName.trim()) updates.channelName = channelName.trim();
     if (channelAbout && channelAbout.trim()) updates.channelAbout = channelAbout.trim();
-    if (channelLogo) updates.channelLogo = channelLogo;
+    if (imgUrl) updates.channelLogo = imgUrl;
 
     if (typeof maxParticipants === "number" && channel.maxParticipants != maxParticipants) {
         if (maxParticipants < 1) {
@@ -403,7 +423,8 @@ export const updateChannel = asyncHandler(async (req, res) => {
         { channelId },
         { $set: updates },
         { new: true }
-    ).populate("channelAdmin", "fullName email profilePic");
+    ).populate("channelAdmin", "fullName email profilePic")
+        .populate("participants.user", "fullName email profilePic");
 
     return res
         .status(200)
@@ -426,9 +447,59 @@ export const getAllChannels = asyncHandler(async (req, res) => {
         .sort({ updatedAt: -1 });
 
     return res
-        .status(201)
+        .status(200)
         .json(
-            new ApiResponse(201, { channels }, "Successfully got all channels!")
+            new ApiResponse(200, { channels }, "Successfully got all channels!")
         )
 
 })
+
+//controller for save document
+export const saveDocument = asyncHandler(async (req, res) => {
+    const { update } = req.body;
+    const { channelId } = req.params;
+
+    const channel = await Channel.findOne({ channelId });
+    if (!channel) {
+        throw new ApiError(404, "Channel not found to save document!!")
+    }
+    channel.document = update;
+    await channel.save();
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, { channel }, "Document updated Successfully!!")
+        )
+})
+
+//controller to get document
+export const getDocument = asyncHandler(async (req, res) => {
+    const { channelId } = req.params;
+
+    const channel = await Channel.findOne({ channelId });
+    if (!channel) {
+        throw new ApiError(404, "Channel not found to save document!!")
+    }
+    const document = channel.document;
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, { document }, "Document got Successfully!!")
+        )
+})
+
+// Upload image for editor
+export const uploadImage = asyncHandler(async (req, res) => {
+    if (!req.file) {
+        throw new ApiError(400, "No image file provided");
+    }
+    let imgUrl;
+    if (req.file) {
+        const uploadResponse = await uploadOnCloudinary(req.file.path);
+        imgUrl = uploadResponse.secure_url;
+    }
+    return res.status(200).json(
+        new ApiResponse(200, { url: imgUrl }, "Image uploaded successfully")
+    );
+});

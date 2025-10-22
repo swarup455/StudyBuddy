@@ -50,14 +50,14 @@ export const sendMessage = createAsyncThunk(
     "chat/sendMessage", async ({ userId, authUser, messageData }, { rejectWithValue, dispatch }) => {
         try {
             const currMessage = {
-                _id: `temp-${Date.now()}`,
-                sender: {
+                _id: "temp",
+                senderId: {
                     _id: authUser._id,
                     fullName: authUser.fullName,
                     profilePic: authUser.profilePic,
                     email: authUser.email
                 },
-                receiver: userId,
+                receiverId: userId,
                 text: messageData.text,
                 image: messageData.image ? URL.createObjectURL(messageData.image) : null,
                 createdAt: new Date().toISOString(),
@@ -93,8 +93,8 @@ export const sendMessageToChannel = createAsyncThunk(
     "chat/sendMessageToChannel", async ({ channelId, authUser, messageData }, { rejectWithValue, dispatch }) => {
         try {
             const currMessage = {
-                _id: `temp-${Date.now()}`,
-                sender: {
+                _id: "temp",
+                senderId: {
                     _id: authUser._id,
                     fullName: authUser.fullName,
                     profilePic: authUser.profilePic,
@@ -146,8 +146,11 @@ const chatSlice = createSlice({
     reducers: {
         addNewMessage: (state, action) => {
             const newMessage = action.payload;
-            // Add to messages array
-            state.messages.push(newMessage);
+            // Prevent duplicates: check if message already exists
+            const exists = state.messages.some(m => m._id === newMessage._id || m._id === "temp");
+            if (!exists) {
+                state.messages.push(newMessage);
+            }
         },
         setLastMessageId: (state, action) => {
             state.lastMessageId = action.payload;
@@ -221,7 +224,6 @@ const chatSlice = createSlice({
                 } else {
                     state.messages.push(message);
                 }
-                state.lastMessageId = tempId;
                 state.pending = false;
                 state.error = null;
             })
@@ -238,12 +240,13 @@ const chatSlice = createSlice({
             .addCase(sendMessageToChannel.fulfilled, (state, action) => {
                 const { tempId, message } = action.payload;
                 const index = state.messages.findIndex((m) => m._id === tempId);
+                const exists = state.messages.some(m => m._id === message._id);
+
                 if (index !== -1) {
                     state.messages[index] = message;
-                } else {
+                } else if(!exists) {
                     state.messages.push(message);
                 }
-                state.lastMessageId = tempId;
                 state.pending = false;
                 state.error = null;
             })

@@ -106,15 +106,15 @@ export const getMessages = asyncHandler(async (req, res) => {
 export const getChannelMessages = asyncHandler(async (req, res) => {
     try {
         const { id: channelId } = req.params;
-        const currChannel = await Channel.findOne({ joinId: channelId });
+        const currChannel = await Channel.findOne({ channelId });
         //extract the required Id
         if (!currChannel) {
-            new ApiError(401, "channel not found!!")
+            throw new ApiError(401, "channel not found!!")
         }
         const requiredId = currChannel?._id;
         //extract the required Id
         if (!requiredId) {
-            new ApiError(401, "channelId is not Join Id")
+            throw new ApiError(401, "channelId is not Join Id")
         }
         const messages = await Message.find({ channelId: requiredId })
             .populate('senderId', 'fullName email profilePic');
@@ -163,12 +163,16 @@ export const sendMessage = asyncHandler(async (req, res) => {
             imageUrl = uploadResponse.secure_url;
         }
 
-        const newMessage = await Message.create({
+        const message = await Message.create({
             senderId,
             receiverId,
             text,
             image: imageUrl
         })
+        const newMessage = await Message.findById(message._id)
+        .populate("senderId", "fullName email profilePic")
+        .populate("receiverId", "fullName email profilePic");
+
         const receiverSocketId = userSocketMap[receiverId]
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("newMessage", newMessage)
@@ -194,12 +198,12 @@ export const sendMessageToChannel = asyncHandler(async (req, res) => {
         const currChannel = await Channel.findOne({ channelId });
         //extract the required Id
         if (!currChannel) {
-            new ApiError(401, "channel not found!!")
+            throw new ApiError(401, "channel not found!!")
         }
         const requiredId = currChannel?._id;
         //extract the required Id
         if (!requiredId) {
-            new ApiError(401, "channelId is not Join Id")
+            throw new ApiError(401, "channelId is not Join Id")
         }
 
         let imageUrl;
@@ -207,12 +211,17 @@ export const sendMessageToChannel = asyncHandler(async (req, res) => {
             const uploadResponse = await uploadOnCloudinary(req.file.path);
             imageUrl = uploadResponse.secure_url;
         }
-        const newMessage = await Message.create({
+        const message = await Message.create({
             senderId,
             channelId: requiredId,
             text,
             image: imageUrl
         })
+
+        const newMessage = await Message.findById(message._id)
+        .populate("senderId", "fullName email profilePic")
+        .populate("channelId", "channelId channelName channelLogo");
+
         io.to(channelId).emit("newChannelMessage", newMessage);
         return res
             .status(200)

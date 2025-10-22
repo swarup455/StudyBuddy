@@ -29,6 +29,17 @@ io.on("connection", (socket) => {
     //emit online users to all connected clients
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
+    socket.on("joinChannel", ({ channelId, user }) => {
+        socket.join(channelId);
+        console.log(`User ${user.fullName} joined channel ${channelId}`);
+    });
+
+    // Leave a channel room
+    socket.on("leaveChannel", ({ channelId, user }) => {
+        socket.leave(channelId);
+        console.log(`User ${user.fullName} left channel ${channelId}`);
+    });
+
     socket.on("disconnect", () => {
         console.log("User Disconnected", userId);
         delete userSocketMap[userId];
