@@ -376,29 +376,29 @@ export const updateChannel = asyncHandler(async (req, res) => {
         maxParticipants,
         maxEditors,
         allowGuests,
-        newAdminId
+        newAdminId,
+        removeLogo
     } = req.body;
 
-    //getting channel logo from req.file
-    let imgUrl;
-    if (req.file) {
-        const uploadResponse = await uploadOnCloudinary(req.file.path);
-        imgUrl = uploadResponse.secure_url;
-    }
     //find channel using id
     const channel = await Channel.findOne({ channelId });
     if (!channel) {
         throw new ApiError(404, "Channel not found!!");
     }
     if (channel.channelAdmin.toString() !== userId.toString()) {
-        throw new ApiError(404, "Only admin can update channel settings!!");
+        throw new ApiError(403, "Only admin can update channel settings!!");
     }
     //getting fields
     const updates = {};
     if (channelName && channelName.trim()) updates.channelName = channelName.trim();
     if (channelAbout && channelAbout.trim()) updates.channelAbout = channelAbout.trim();
-    if (imgUrl) updates.channelLogo = imgUrl;
-
+    if (removeLogo === "true") {
+        updates.channelLogo = null;
+    } else if (req.file) {
+        const uploadResponse = await uploadOnCloudinary(req.file.path);
+        updates.channelLogo = uploadResponse.secure_url;
+    }
+    
     const parsedMaxParticipants = Number(maxParticipants);
     const parsedMaxEditors = Number(maxEditors);
 

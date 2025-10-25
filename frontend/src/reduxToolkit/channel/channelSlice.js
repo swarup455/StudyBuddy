@@ -108,6 +108,7 @@ export const updateChannel = createAsyncThunk(
         }
     }
 )
+
 //thunk for update channel logo
 export const updateChannelLogo = createAsyncThunk(
     "channel/updateChannelLogo", async ({ channelLogo, channelId }, { rejectWithValue }) => {

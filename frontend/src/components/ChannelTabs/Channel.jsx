@@ -69,6 +69,17 @@ const Channel = ({ channel }) => {
     }));
   };
 
+  //function to remove channel logo
+  const handleRemoveChannelLogo = () => {
+    const formData = new FormData();
+    formData.append("removeLogo", "true");
+
+    dispatch(updateChannelLogo({
+      channelLogo: formData,
+      channelId: channel.channelId
+    }));
+  };
+
   //set remaining words when channel name changes
   useEffect(() => {
     setRemainingWords(Math.max(20 - channelName?.length, 0));
@@ -131,7 +142,9 @@ const Channel = ({ channel }) => {
             className={`flex flex-col items-center p-3 border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900
             rounded-lg absolute left-1/2 -translate-x-1/2 mt-4 transition-all duration-300 origin-top
             ${openEditMenu ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-            <button className='whitespace-nowrap hover:text-violet-500 transition-colors hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 p-2 rounded-sm cursor-pointer'>
+            <button
+              onClick={() => {handleRemoveChannelLogo(), setOpenEditMenu(false)}}
+              className='whitespace-nowrap hover:text-violet-500 transition-colors hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 p-2 rounded-sm cursor-pointer'>
               Remove Image
             </button>
             <label onClick={() => setOpenEditMenu(false)} htmlFor='selectImage' className='whitespace-nowrap hover:text-violet-500 transition-colors hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 p-2 rounded-sm cursor-pointer'>
