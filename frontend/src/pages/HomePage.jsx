@@ -139,8 +139,8 @@ const HomePage = () => {
       </div>
       <div className={`${selectedUser ? 'flex' : 'hidden'} md:flex flex-col flex-1 px-5`}>
         {!selectedUser && (
-          <div className='flex-1 flex items-center justify-center'>
-            <img className='h-30' src="/chat.svg" alt='chat' />
+          <div className='h-full w-full flex items-center justify-center'>
+            <img className='w-1/2' src="/chat.svg" alt='chat' />
           </div>
         )}
         {selectedUser && (

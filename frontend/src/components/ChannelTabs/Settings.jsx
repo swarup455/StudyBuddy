@@ -10,7 +10,7 @@ import DeleteChannel from '../Popups/DeleteChannel';
 const Settings = ({ channel }) => {
     const [maxParticipants, setMaxParticipants] = useState(channel?.maxParticipants);
     const [maxEditors, setMaxEditors] = useState(channel?.maxEditors);
-    const [allowGuests, setAllowGuests] = useState(channel?.allowGuests);
+    {/*const [allowGuests, setAllowGuests] = useState(channel?.allowGuests)*/};
     const [deleteChannelOpen, setDeleteChannelOpen] = useState(false);
     const { channelId } = useParams()
     const dispatch = useDispatch();
@@ -18,19 +18,18 @@ const Settings = ({ channel }) => {
     useEffect(() => {
         setMaxParticipants(channel?.maxParticipants);
         setMaxEditors(channel?.maxEditors);
-        setAllowGuests(channel?.allowGuests);
+        {/*setAllowGuests(channel?.allowGuests);*/}
     }, [channel]);
 
     const handleChange = (field, value) => {
         if (field === "maxParticipants") setMaxParticipants(value);
         if (field === "maxEditors") setMaxEditors(value);
-        if (field === "allowGuests") setAllowGuests(value);
         dispatch(updateChannel({ channelData: { [field]: value }, channelId }));
     };
 
     return (
         <div className='flex flex-col gap-5'>
-            <div className='p-2 md:p-5 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
+            {/*<div className='p-2 md:p-5 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
             dark:hover:bg-zinc-950/10 rounded-lg md:rounded-xl border border-zinc-200 dark:border-zinc-800 text-sm'>
                 <p className='flex-1'>Allow Guests</p>
                 <button onClick={() => handleChange("allowGuests", !allowGuests)} className='flex cursor-pointer'>
@@ -40,7 +39,7 @@ const Settings = ({ channel }) => {
                         <FaToggleOff size={28} />
                     }
                 </button>
-            </div>
+            </div>*/}
             <div className='p-2 md:p-5 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
             dark:hover:bg-zinc-950/10 rounded-lg md:rounded-xl border border-zinc-200 dark:border-zinc-800 text-sm'>
                 <p className='flex-1'>Maximum participants</p>

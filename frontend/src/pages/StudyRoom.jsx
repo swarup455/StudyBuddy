@@ -5,7 +5,7 @@ import { SimpleEditor } from '.././@/components/tiptap-templates/simple/simple-e
 import { IoSend } from 'react-icons/io5';
 import { RxCross2 } from 'react-icons/rx';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import Message from '../components/message/Message.jsx';
 import ChannelPopup from '../components/Popups/ChannelPopup.jsx';
 import { useSocketChannelMessages } from '../customHooks/useSocketMessage.js';
@@ -17,20 +17,20 @@ import { ImSpinner8 } from 'react-icons/im';
 import { BiSolidMessageAltDetail } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
 import ProfilePopup from '../components/Popups/ProfilePopup.jsx';
+import { CgUnavailable } from "react-icons/cg";
 
 const StudyRoom = () => {
   const [text, setText] = useState();
   const [image, setImage] = useState();
   const [chatsOpen, setChatsOpen] = useState(false);
   const [channelOpen, setChannelOpen] = useState(false);
-  const { allChannels } = useSelector((state) => state.channel);
-  const { authUser } = useSelector((state) => state.auth);
+  const { allChannels, pending: channelPending } = useSelector((state) => state.channel);
+  const { authUser, pending: authPending } = useSelector((state) => state.auth);
   const { channelId } = useParams();
   const { messages, pending: chatPending, lastMessageId } = useSelector((state) => state.chat);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const [profileOpen, setProfileOpen] = useState(false);
-
   const messagesWithMedia = messages.filter(message => message.image);
 
   useSocketChannelMessages({ channelId, authUser });
@@ -139,11 +139,30 @@ const StudyRoom = () => {
     };
   }, [channelId, dispatch]);
 
+  const isEditor = currChannelUsers?.find((item) => item.user._id === authUser?._id)?.role === "Editor";
+  // Check if the user is a participant of the current channel
+  let isUserParticipant = !!(allChannels && Array.isArray(allChannels) && allChannels.some((ch) => ch.channelId === channelId));
+  
+  if (!isUserParticipant) {
+    return (
+      <div className='h-full w-full flex items-start justify-center'>
+        <div className='m-5 w-full max-w-lg'>
+          <img src="/NotJoined.svg" alt="vector" />
+          <div className='flex items-start gap-2 sm:gap-5 justify-center'>
+            <CgUnavailable size={25} className='text-zinc-400 dark:text-zinc-500' />
+            <p className='font-semibold text-md sm:text-xl text-zinc-600 dark:text-zinc-300'>
+              You are not a participant of this channel!
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="h-full w-full flex overflow-hidden">
       <div className={`${chatsOpen ? 'hidden' : 'flex'} md:flex w-full flex-1 overflow-hidden relative`}>
         {providerData?.doc && providerData?.provider ? (
-          <SimpleEditor doc={providerData.doc} provider={providerData.provider} />
+          <SimpleEditor doc={providerData.doc} provider={providerData.provider} isEditable={isEditor} />
         ) : (
           <div className='absolute inset-0 flex items-center justify-center'>
             <ImSpinner8 size={25} className='text-zinc-700 dark:text-zinc-500 animate-spin' />
@@ -178,7 +197,7 @@ const StudyRoom = () => {
         </div>
         <div ref={messagesContainerRef} className='flex-1 w-full flex flex-col overflow-y-scroll'>
           <ul className='flex-1 w-full flex flex-col items-start justify-end'>
-            {messages.map((item) => (
+            {isUserParticipant && messages.map((item) => (
               <button
                 key={item._id}
                 disabled={item.senderId._id === authUser._id}
@@ -219,7 +238,7 @@ const StudyRoom = () => {
             </div>
           </>
         )}
-        <ProfilePopup isOpen={profileOpen} onClose={() => setProfileOpen(false)} user={currentUserId} />
+        <ProfilePopup isOpen={profileOpen} onClose={() => {setProfileOpen(false), setCurrentUserId(null)}} user={currentUserId} />
         <div className='w-full flex flex-col p-5 border border-zinc-300 dark:border-zinc-800 rounded-xl my-2'>
           {image && (
             <div className='w-fit relative mb-2'>

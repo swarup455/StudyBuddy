@@ -2,16 +2,17 @@ import React, { useEffect, useState, useRef } from 'react'
 import { MdEdit } from "react-icons/md";
 import useClickOutside from '../../customHooks/useClickOutside';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateChannel } from '../../reduxToolkit/channel/channelSlice';
+import { updateChannel, updateChannelLogo } from '../../reduxToolkit/channel/channelSlice';
 import toast from 'react-hot-toast';
 import { ImSpinner8 } from "react-icons/im";
 import { IoIosLogOut } from "react-icons/io";
 import LeaveChannel from '../Popups/LeaveChannel';
+import ShareChannel from '../common/ShareChannel';
+import { IoLinkOutline } from "react-icons/io5";
 
 const Channel = ({ channel }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [openEditMenu, setOpenEditMenu] = useState(false);
-  const [channelLogo, setChannelLogo] = useState();
   const [channelNameEdit, setChannelNameEdit] = useState(false);
   const [channelAboutEdit, setChannelAboutEdit] = useState(false);
   const [channelName, setChannelName] = useState(channel?.channelName);
@@ -22,6 +23,7 @@ const Channel = ({ channel }) => {
   const { pending, error } = useSelector((state) => state.channel);
   const textareaRef = useRef(null);
   const [openLeaveChannel, setOpenLeaveChannel] = useState(false);
+  const [shareLinkOpen, setShareLinkOpen] = useState(false);
 
   //close logo edit menu when click outside
   const editRef = useClickOutside(() => setOpenEditMenu(false), openEditMenu);
@@ -56,13 +58,13 @@ const Channel = ({ channel }) => {
     );
   }
 
-  //function to send channel logo
+  //function to save channel logo
   const handleSaveChannelLogo = (file) => {
     const formData = new FormData();
-    formData.append("channelLogo", file);
+    formData.append('channelLogo', file);
 
-    dispatch(updateChannel({
-      channelData: formData,
+    dispatch(updateChannelLogo({
+      channelLogo: formData,
       channelId: channel.channelId
     }));
   };
@@ -101,6 +103,7 @@ const Channel = ({ channel }) => {
     }
   }, [channelAbout, channelAboutEdit]);
 
+  const currRef = useClickOutside(() => setShareLinkOpen(false), shareLinkOpen);
   return (
     <div className='w-full flex-1 flex flex-col gap-5 items-center justify-start overflow-y-scroll'>
       <div className='w-full bg-zinc-300/30 dark:bg-zinc-950/30 flex flex-col items-center justify-start text-center
@@ -111,7 +114,7 @@ const Channel = ({ channel }) => {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}>
           <img
-            className='w-full h-full rounded-full ring-4 ring-offset-3 ring-violet-500 ring-offset-zinc-100 dark:ring-offset-zinc-900 transition-all'
+            className='w-full aspect-square rounded-full object-cover ring-4 ring-offset-3 ring-violet-500 ring-offset-zinc-100 dark:ring-offset-zinc-900 transition-all'
             src={channel.channelLogo || "/channel.svg"}
             alt="channel"
           />
@@ -138,7 +141,6 @@ const Channel = ({ channel }) => {
               onChange={(e) => {
                 const file = e.target.files[0];
                 if (file) {
-                  setChannelLogo(file);
                   handleSaveChannelLogo(file);
                 }
               }}
@@ -227,6 +229,15 @@ const Channel = ({ channel }) => {
             </button>
           </p>
         }
+      </div>
+      <div
+        onClick={() => setShareLinkOpen(true)}
+        ref={currRef}
+        className='relative w-full p-3 md:p-6 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
+        dark:hover:bg-zinc-950/10 rounded-lg md:rounded-xl border border-zinc-200 dark:border-zinc-800 text-sm text-zinc-700 dark:text-zinc-100 cursor-pointer'>
+        <p className='flex-1'>Invite people to this collab via link</p>
+        <IoLinkOutline size={20} />
+        <ShareChannel isOpen={shareLinkOpen} onClose={() => setShareLinkOpen(false)} channel={channel} />
       </div>
       <div onClick={() => setOpenLeaveChannel(true)} className='w-full p-3 md:p-6 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
         dark:hover:bg-zinc-950/10 rounded-lg md:rounded-xl border border-zinc-200 dark:border-zinc-800 text-sm text-red-500 cursor-pointer'>

@@ -64,6 +64,7 @@ export const deleteChannel = createAsyncThunk(
 export const leaveChannel = createAsyncThunk(
     "channel/leaveChannel", async ({ userData, channelId }, { rejectWithValue }) => {
         try {
+            console.log(userData)
             const res = await api.delete(`/leave-channel/${channelId}`, { data: userData ? userData : {} });
             return res.data;
         } catch (error) {
@@ -100,16 +101,18 @@ export const updateRole = createAsyncThunk(
 export const updateChannel = createAsyncThunk(
     "channel/updateChannel", async ({ channelData, channelId }, { rejectWithValue }) => {
         try {
-            let dataToSend;
-            if (channelData instanceof FormData) {
-                dataToSend = channelData;
-            } else {
-                dataToSend = new FormData();
-                Object.entries(channelData).forEach(([key, value]) => {
-                    dataToSend.append(key, value);
-                });
-            }
-            const res = await api.put(`/update-channel/${channelId}`, dataToSend, {
+            const res = await api.put(`/update-channel/${channelId}`, channelData);
+            return res.data;
+        } catch (error) {
+            return rejectWithValue(extractErrorMessage(error));
+        }
+    }
+)
+//thunk for update channel logo
+export const updateChannelLogo = createAsyncThunk(
+    "channel/updateChannelLogo", async ({ channelLogo, channelId }, { rejectWithValue }) => {
+        try {
+            const res = await api.put(`/update-channel/${channelId}`, channelLogo, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             return res.data;
@@ -158,6 +161,19 @@ const channelSlice = createSlice({
         },
         clearError: (state) => {
             state.error = null;
+        },
+        kickOutUserRealtime: (state, action) => {
+            const { channelId, removedParticipantId, isGuest } = action.payload;
+            const channelIndex = state.allChannels.findIndex(ch => ch.channelId === channelId);
+            if (channelIndex !== -1) {
+                state.allChannels[channelIndex] = {
+                    ...state.allChannels[channelIndex],
+                    participants: state.allChannels[channelIndex].participants.filter(p => {
+                        if (isGuest) return p.guestTempId !== removedParticipantId;
+                        return p.user._id.toString() !== removedParticipantId.toString();
+                    })
+                };
+            }
         }
     },
     extraReducers: (builder) => (
@@ -200,6 +216,8 @@ const channelSlice = createSlice({
                 );
                 if (channelIndex !== -1) {
                     state.allChannels[channelIndex] = action.payload.channel;
+                } else {
+                    state.allChannels.push(action.payload.channel);
                 }
             })
             .addCase(joinChannel.rejected, (state, action) => {
@@ -229,12 +247,7 @@ const channelSlice = createSlice({
             })
             .addCase(leaveChannel.fulfilled, (state, action) => {
                 state.pending = false;
-                const channelIndex = state.allChannels.findIndex(
-                    ch => ch.channelId === action.meta.arg.channelId
-                );
-                if (channelIndex !== -1 && action.payload.data?.channel) {
-                    state.allChannels[channelIndex] = action.payload.data.channel;
-                }
+                state.allChannels = state.allChannels.filter(ch => ch.channelId === action.meta.arg.channelId);
             })
             .addCase(leaveChannel.rejected, (state, action) => {
                 state.pending = false;
@@ -253,7 +266,7 @@ const channelSlice = createSlice({
                 if (channelIndex !== -1) {
                     state.allChannels[channelIndex].participants =
                         state.allChannels[channelIndex].participants.filter(
-                            p => p.user?.toString() !== action.payload.data.removedParticipant.user.toString()
+                            p => p.user?._id !== action.payload.data.removedParticipant.user._id
                         );
                 }
             })
@@ -305,6 +318,25 @@ const channelSlice = createSlice({
                 state.pending = false;
                 state.error = action.payload;
             })
+            //update channel logo
+            .addCase(updateChannelLogo.pending, (state) => {
+                state.pending = true;
+                state.error = null;
+            })
+            .addCase(updateChannelLogo.fulfilled, (state, action) => {
+                state.pending = false;
+                // Update channel details
+                const channelIndex = state.allChannels.findIndex(
+                    ch => ch.channelId === action.meta.arg.channelId
+                );
+                if (channelIndex !== -1 && action.payload.data?.channel) {
+                    state.allChannels[channelIndex] = action.payload.data.channel;
+                }
+            })
+            .addCase(updateChannelLogo.rejected, (state, action) => {
+                state.pending = false;
+                state.error = action.payload;
+            })
             //save document
             .addCase(saveDocument.pending, (state) => {
                 state.pending = true;
@@ -323,19 +355,19 @@ const channelSlice = createSlice({
                 state.pending = false;
                 state.error = action.payload;
             }))
-            //get document async thunk
-            .addCase(getDocument.pending, (state) => {
-                state.pending = true;
-                state.error = null;
-            })
-            .addCase(getDocument.fulfilled, (state, action) => {
-                state.pending = false;
-                state.document = action.payload;
-            })
-            .addCase(getDocument.rejected, (state, action) => {
-                state.pending = false;
-                state.error = action.payload;
-            })
+        //get document async thunk
+        .addCase(getDocument.pending, (state) => {
+            state.pending = true;
+            state.error = null;
+        })
+        .addCase(getDocument.fulfilled, (state, action) => {
+            state.pending = false;
+            state.document = action.payload;
+        })
+        .addCase(getDocument.rejected, (state, action) => {
+            state.pending = false;
+            state.error = action.payload;
+        })
 })
 
 export const { addNewChannel, clearError } = channelSlice.actions;

@@ -239,7 +239,7 @@ export const leaveChannel = asyncHandler(async (req, res) => {
                 throw new ApiError(401, "Provide new AdminId to leave the channel!!")
             } else {
                 channel.channelAdmin = newAdminId;
-                const user = channel.participants.findOne(newAdminId);
+                const user = channel.participants.find((p) => p.user?.toString() === newAdminId.toString());
                 user.role = "Editor";
             }
         } else {
@@ -301,6 +301,10 @@ export const kickOutUser = asyncHandler(async (req, res) => {
 
     //Remove the participant
     const removedParticipant = channel.participants.splice(participantIndex, 1)[0];
+
+    if (!isGuest && removedParticipant.user) {
+        await Channel.populate(removedParticipant, { path: "user", select: "fullName email profilePic" });
+    }
 
     await channel.save();
     //emit kick out event 
@@ -395,20 +399,24 @@ export const updateChannel = asyncHandler(async (req, res) => {
     if (channelAbout && channelAbout.trim()) updates.channelAbout = channelAbout.trim();
     if (imgUrl) updates.channelLogo = imgUrl;
 
-    if (typeof maxParticipants === "number" && channel.maxParticipants != maxParticipants) {
-        if (maxParticipants < 1) {
-            throw new ApiError(400, "maxParticipants must be at least 1");
-        }
-        updates.maxParticipants = maxParticipants;
-    }
-    if (typeof maxEditors === "number" && channel.maxEditors != maxEditors) {
-        if (maxEditors < 1) {
-            throw new ApiError(400, "maxEditors must be at least 1");
-        }
-        updates.maxEditors = maxEditors;
+    const parsedMaxParticipants = Number(maxParticipants);
+    const parsedMaxEditors = Number(maxEditors);
+
+    if (!isNaN(parsedMaxParticipants) && parsedMaxParticipants !== channel.maxParticipants) {
+        if (parsedMaxParticipants < 1) throw new ApiError(400, "maxParticipants must be at least 1");
+        updates.maxParticipants = parsedMaxParticipants;
     }
 
-    if (typeof allowGuests === "boolean") updates.allowGuests = allowGuests;
+    if (!isNaN(parsedMaxEditors) && parsedMaxEditors !== channel.maxEditors) {
+        if (parsedMaxEditors < 1) throw new ApiError(400, "maxEditors must be at least 1");
+        updates.maxEditors = parsedMaxEditors;
+    }
+
+    // ✅ Handle booleans (FormData sends them as "true"/"false" strings)
+    if (allowGuests !== undefined) {
+        updates.allowGuests = allowGuests === "true";
+    }
+
     if (newAdminId) {
         const newAdminExists = channel.participants.find(
             (item) => item.user && item.user.toString() === newAdminId

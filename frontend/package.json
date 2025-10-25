@@ -36,6 +36,7 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.11.18",
     "lodash.throttle": "^4.1.1",
+    "motion": "^12.23.24",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hot-toast": "^2.6.0",

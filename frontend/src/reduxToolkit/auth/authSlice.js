@@ -20,7 +20,7 @@ export const loginAndSignupUser = createAsyncThunk(
         try {
             const response = await api.post(`/${state}`, userData);
             const user = response.data.data.user;
-            return {state, user};
+            return { state, user };
         } catch (error) {
             return rejectWithValue(extractErrorMessage(error));
         }
@@ -28,7 +28,7 @@ export const loginAndSignupUser = createAsyncThunk(
 )
 
 export const logout = createAsyncThunk(
-    "auth/logout", async (_, { rejectWithValue}) => {
+    "auth/logout", async (_, { rejectWithValue }) => {
         try {
             await api.get("/logout");
         } catch (error) {
@@ -40,7 +40,10 @@ export const logout = createAsyncThunk(
 export const updateProfile = createAsyncThunk(
     "auth/updateProfile", async (userData, { rejectWithValue }) => {
         try {
-            const response = await api.put("/update-profile", userData);
+            const response = await api.put("/update-profile", userData, {
+                headers: { "Content-Type": "multipart/form-data" },
+                withCredentials: true,
+            });
             return response.data.data;
         } catch (error) {
             return rejectWithValue(extractErrorMessage(error));
@@ -51,7 +54,7 @@ export const updateProfile = createAsyncThunk(
 const authSlice = createSlice({
     name: "auth",
     initialState: {
-        authUser: JSON.parse(localStorage.getItem("authUser")) || null,
+        authUser: null,
         onlineUsers: [],
         isConnected: false,
         pending: false,
@@ -60,6 +63,9 @@ const authSlice = createSlice({
     reducers: {
         setOnlineUsers: (state, action) => {
             state.onlineUsers = action.payload;
+        },
+        clearError: (state) => {
+            state.error = null;
         }
     },
     extraReducers: (builder) => {
@@ -72,8 +78,7 @@ const authSlice = createSlice({
             .addCase(loginAndSignupUser.fulfilled, (state, action) => {
                 state.pending = false;
                 state.authUser = action.payload.user;
-                localStorage.setItem("authUser", JSON.stringify(action.payload));
-                if(action.payload.state === "login") toast.success("Logged in successfully!");
+                if (action.payload.state === "login") toast.success("Logged in successfully!");
                 else toast.success("Signed Up successfully!");
             })
             .addCase(loginAndSignupUser.rejected, (state, action) => {
@@ -91,12 +96,10 @@ const authSlice = createSlice({
                 state.authUser = action.payload;
                 state.pending = false;
                 state.isConnected = true;
-                localStorage.setItem("authUser", JSON.stringify(action.payload));
             })
             .addCase(checkAuth.rejected, (state, action) => {
                 state.pending = false;
                 state.error = action.payload;
-                localStorage.removeItem("authUser");
             })
             //logout
             .addCase(logout.pending, (state) => {
@@ -108,7 +111,6 @@ const authSlice = createSlice({
                 state.onlineUsers = [];
                 state.isConnected = false;
                 state.pending = false;
-                localStorage.removeItem("authUser");
             })
             .addCase(logout.rejected, (state, action) => {
                 state.error = action.payload;
@@ -120,9 +122,8 @@ const authSlice = createSlice({
                 state.error = null;
             })
             .addCase(updateProfile.fulfilled, (state, action) => {
-                state.authUser = action.payload;
+                state.authUser = action.payload.user;
                 state.pending = false;
-                localStorage.setItem("authUser", JSON.stringify(action.payload));
             })
             .addCase(updateProfile.rejected, (state, action) => {
                 state.pending = false;
@@ -131,5 +132,5 @@ const authSlice = createSlice({
     }
 })
 
-export const { setOnlineUsers, disconnectSocket } = authSlice.actions;
+export const { setOnlineUsers, disconnectSocket, clearError } = authSlice.actions;
 export default authSlice.reducer

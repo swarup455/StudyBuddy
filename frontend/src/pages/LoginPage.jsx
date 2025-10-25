@@ -130,16 +130,6 @@ const LoginPage = () => {
                 </button>
               </p>
             </div>
-            <div className='w-full flex items-center justify-between'>
-              <hr className='flex-grow border-t border-zinc-400 dark:border-zinc-700' />
-              <span className='text-zinc-500 mx-3'>OR</span>
-              <hr className='flex-grow border-t border-zinc-400 dark:border-zinc-700' />
-            </div>
-            <button
-              className='border border-zinc-400 dark:border-zinc-800 text-zinc-800 dark:text-zinc-300 p-3 rounded-xl cursor-pointer'
-            >
-              Join as a guest
-            </button>
           </div>
         </form>
       </div>

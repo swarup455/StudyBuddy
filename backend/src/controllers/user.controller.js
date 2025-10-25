@@ -158,7 +158,7 @@ export const getUser = asyncHandler(async (req, res) => {
 
 //update user profile
 export const updateProfile = asyncHandler(async (req, res) => {
-    const { fullName, bio, profilePic } = req.body;
+    const { fullName, bio } = req.body;
     const userId = req.user._id;
 
     let updatedUser;

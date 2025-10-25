@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { Navigate, Route, useParams, Routes } from "react-router-dom"
 import Homepage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
-import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import StudyRoom from './pages/StudyRoom'
 import Sidebar from './components/Sidebar/Sidebar'
@@ -13,6 +12,7 @@ import { useSelector, useDispatch } from "react-redux"
 import Header from './components/Header/Header'
 import { connectSocket as initSocket, disconnectSocket as closeSocket } from '../utils/socket'
 import { setOnlineUsers } from './reduxToolkit/auth/authSlice'
+import JoinChannelPage from './pages/JoinChannelPage'
 
 const Layout = () => {
     const { channelId } = useParams();
@@ -49,10 +49,10 @@ const Layout = () => {
                         <Route path='/' element={authUser ? <Homepage /> : <Navigate to="/login" />} />
                         <Route path='/chat/:userId' element={authUser ? <Homepage /> : <Navigate to="/login" />} />
                         <Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
-                        <Route path='/profile' element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
                         <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
                         <Route path='/settings/:setting' element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
                         <Route path='/study/:channelId' element={authUser ? <StudyRoom /> : <Navigate to="/login" />} />
+                        <Route path='/channel/:channelName/join/:channelId' element={authUser ? <JoinChannelPage /> : <Navigate to="/login" />} />
                     </Routes>
                 </div>
             </div>

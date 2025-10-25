@@ -156,7 +156,7 @@ const MobileToolbarContent = ({
   </>
 )
 
-export function SimpleEditor({doc, provider}) {
+export function SimpleEditor({doc, provider, isEditable}) {
   const isMobile = useIsMobile()
   const { height } = useWindowSize()
   const [mobileView, setMobileView] = React.useState("main")
@@ -217,6 +217,7 @@ export function SimpleEditor({doc, provider}) {
       }),
     ],
     content,
+    editable: isEditable,
   })
 
   const rect = useCursorVisibility({
