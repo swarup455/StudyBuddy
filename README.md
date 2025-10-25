@@ -25,7 +25,7 @@
 - ➕ Create channels  
 - ✏️ Edit channel name and description  
 - 👥 Add or remove members  
-- ❌ Delete channels safely with confirmation prompts
+- ❌ Delete channels safely with confirmation prompts and many more
 
 ### 👤 User Management
 - 🔐 Secure authentication using **JWT**  
@@ -47,14 +47,6 @@
 | **Frontend** | React, Redux Toolkit, Tiptap, Tailwind CSS |
 | **Backend** | Node.js, Express.js, MongoDB |
 | **Real-time** | Socket.IO, Yjs, y-websocket |
+| **File-upload** | Cloudinary |
 | **Authentication** | JSON Web Tokens (JWT) |
 | **State Management** | Redux Toolkit |
-
----
-
-## 📦 Installation & Setup
-
-### 1️⃣ Clone the repository
-```bash
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
