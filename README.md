@@ -5,7 +5,7 @@
 ---
 
 ## 🚀 Demo
-🔗 **Live Demo:** [Click Here](https://your-demo-link.com)  
+🔗 **Live Demo:** [Click Here](https://vercel-studybuddy.vercel.app)  
 *(Replace with your deployed project link once live)*
 
 ---
