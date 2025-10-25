@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const baseConfig = {
-    baseURL: "http://localhost:8000/api/auth",
+    baseURL: "https://studybuddy-q5l4.onrender.com/api/auth",
     withCredentials: true,
     headers: {
         "Content-Type": "application/json",
