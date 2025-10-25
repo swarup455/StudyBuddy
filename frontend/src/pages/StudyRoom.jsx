@@ -124,7 +124,7 @@ const StudyRoom = () => {
           console.warn("Error applying Yjs update:", err);
         }
       }
-      provider = new WebsocketProvider("ws://localhost:1234", channelId, doc);
+      provider = new WebsocketProvider("https://y-websocket-kf7i.onrender.com", channelId, doc);
       provider.on("sync", () => {
         if (isActive) setProviderData({ doc, provider });
       });
