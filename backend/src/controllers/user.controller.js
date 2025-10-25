@@ -7,10 +7,12 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
+const isProduction = process.env.NODE_ENV === "production";
+
 // Constants for cookie options
 const options = {
     httpOnly: true,
-    secure: false,
+    secure: isProduction,
     sameSite: "lax",
     path: "/",
 };
