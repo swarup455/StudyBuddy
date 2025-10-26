@@ -59,6 +59,7 @@ const authSlice = createSlice({
         isConnected: false,
         pending: false,
         error: null,
+        initialized: false,
     },
     reducers: {
         setOnlineUsers: (state, action) => {
@@ -95,15 +96,18 @@ const authSlice = createSlice({
             .addCase(checkAuth.pending, (state) => {
                 state.pending = true;
                 state.error = null;
+                state.initialized = false;
             })
             .addCase(checkAuth.fulfilled, (state, action) => {
                 state.authUser = action.payload;
                 state.pending = false;
                 state.isConnected = true;
+                state.initialized = true;
             })
             .addCase(checkAuth.rejected, (state, action) => {
                 state.pending = false;
                 state.error = action.payload;
+                state.initialized = true;
             })
             //logout
             .addCase(logout.pending, (state) => {

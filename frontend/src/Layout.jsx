@@ -26,7 +26,7 @@ const Layout = () => {
     }, [dispatch]);
 
 
-    const { authUser, pending } = useSelector((state) => state.auth);
+    const { authUser, pending, initialized } = useSelector((state) => state.auth);
     useEffect(() => {
         if (authUser) {
             dispatch(getChannels());
@@ -43,6 +43,14 @@ const Layout = () => {
         }
     }, [authUser, dispatch]);
 
+    if (pending || !initialized) {
+        return (
+            <div className='fixed inset-0 flex items-center justify-center'>
+                <ImSpinner8 size={30} className='text-violet-600 animate-spin' />
+            </div>
+        );
+    }
+
     return (
         <div className='h-screen w-full flex flex-row bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100'>
             <Toaster />
@@ -51,24 +59,13 @@ const Layout = () => {
                 {authUser && <Header />}
                 <div className='flex-1 overflow-y-auto'>
                     <Routes>
-                        {pending ? (
-                            <Route path="*" element={
-                                <div className='fixed inset-0 flex items-center justify-center'>
-                                    <ImSpinner8 size={30} className='text-violet-600 animate-spin' />
-                                </div>
-                            }
-                            />
-                        ) : (
-                            <>
-                                <Route path='/' element={authUser ? <Homepage /> : <Navigate to="/login" />} />
-                                <Route path='/chat/:userId' element={authUser ? <Homepage /> : <Navigate to="/login" />} />
-                                <Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
-                                <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
-                                <Route path='/settings/:setting' element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
-                                <Route path='/study/:channelId' element={authUser ? <StudyRoom /> : <Navigate to="/login" />} />
-                                <Route path='/channel/:channelName/join/:channelId' element={authUser ? <JoinChannelPage /> : <Navigate to="/login" />} />
-                            </>
-                        )}
+                        <Route path='/' element={authUser ? <Homepage /> : <Navigate to="/login" />} />
+                        <Route path='/chat/:userId' element={authUser ? <Homepage /> : <Navigate to="/login" />} />
+                        <Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
+                        <Route path='/settings' element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
+                        <Route path='/settings/:setting' element={authUser ? <SettingsPage /> : <Navigate to="/login" />} />
+                        <Route path='/study/:channelId' element={authUser ? <StudyRoom /> : <Navigate to="/login" />} />
+                        <Route path='/channel/:channelName/join/:channelId' element={authUser ? <JoinChannelPage /> : <Navigate to="/login" />} />
                     </Routes>
                 </div>
             </div>
