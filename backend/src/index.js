@@ -10,7 +10,7 @@ const server = http.createServer(app)
 //initialize socket io server
 export const io = new Server(server, {
     cors: {
-        origin: "https://vercel-studybuddy.vercel.app",
+        origin: process.env.CORS_ORIGIN,
         methods: ["GET", "POST"],
         credentials: true
     },

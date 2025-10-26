@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const baseConfig = {
-    baseURL: "https://studybuddy-q5l4.onrender.com/api/auth",
+    baseURL: `${import.meta.env.VITE_API_URI}/api/auth`,
     withCredentials: true,
     headers: {
         "Content-Type": "application/json",
@@ -20,9 +20,9 @@ api.interceptors.response.use(
             originalRequest._retry = true;
             try {
                 await refreshApi.post("/refresh-access-token", {});
-
                 return api(originalRequest);
             } catch (refreshError) {
+                localStorage.removeItem("authUser");
                 return Promise.reject(error);
             }
         }

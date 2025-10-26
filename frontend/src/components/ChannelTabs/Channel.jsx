@@ -246,13 +246,13 @@ const Channel = ({ channel }) => {
       <div
         onClick={() => setShareLinkOpen(true)}
         ref={currRef}
-        className='relative w-full p-3 md:p-6 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
+        className='relative w-full p-5 md:p-6 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
         dark:hover:bg-zinc-950/10 rounded-lg md:rounded-xl border border-zinc-200 dark:border-zinc-800 text-sm text-zinc-700 dark:text-zinc-100 cursor-pointer'>
         <p className='flex-1'>Invite people to this collab via link</p>
         <IoLinkOutline size={20} />
         <ShareChannel isOpen={shareLinkOpen} onClose={() => setShareLinkOpen(false)} channel={channel} />
       </div>
-      <div onClick={() => setOpenLeaveChannel(true)} className='w-full p-3 md:p-6 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
+      <div onClick={() => setOpenLeaveChannel(true)} className='w-full p-5 md:p-6 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
         dark:hover:bg-zinc-950/10 rounded-lg md:rounded-xl border border-zinc-200 dark:border-zinc-800 text-sm text-red-500 cursor-pointer'>
         <p className='flex-1'>Leave Channel</p>
         <IoIosLogOut size={20} />

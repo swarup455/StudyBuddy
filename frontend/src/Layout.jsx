@@ -13,13 +13,17 @@ import Header from './components/Header/Header'
 import { connectSocket as initSocket, disconnectSocket as closeSocket } from '../utils/socket'
 import { setOnlineUsers } from './reduxToolkit/auth/authSlice'
 import JoinChannelPage from './pages/JoinChannelPage'
+import { setAuthUser } from './reduxToolkit/auth/authSlice'
 
 const Layout = () => {
     const { channelId } = useParams();
     const dispatch = useDispatch();
     useEffect(() => {
+        const user = localStorage.getItem("authUser");
+        if (user) dispatch(setAuthUser(JSON.parse(user)));
         dispatch(checkAuth());
-    }, [dispatch])
+    }, [dispatch]);
+
 
     const { authUser } = useSelector((state) => state.auth);
     useEffect(() => {

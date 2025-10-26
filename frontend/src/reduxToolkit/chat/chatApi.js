@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const baseConfig = {
-    baseURL: "https://studybuddy-q5l4.onrender.com/api/chat",
+    baseURL: `${import.meta.env.VITE_API_URI}/api/chat`,
     withCredentials: true,
     headers: {
         "Content-Type": "application/json",

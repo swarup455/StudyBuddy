@@ -88,7 +88,7 @@ const HomePage = () => {
       });
     }
   }, [messages]);
-  
+
   return (
     <div className="flex flex-row w-full h-full overflow-hidden">
       <div className={`flex flex-col w-full md:max-w-xs lg:max-w-sm ${selectedUser ? 'hidden' : 'block'} md:block border-r border-r-zinc-700/30 px-5`}>
@@ -149,7 +149,9 @@ const HomePage = () => {
               <Link
                 to="/"
                 className='mx-1 text-zinc-600 dark:text-zinc-400 cursor-pointer'>
-                <FaArrowLeft />
+                <button onClick={() => setSelectedUser(null)}>
+                  <FaArrowLeft />
+                </button>
               </Link>
               <button
                 onClick={() => setProfileOpen(true)}

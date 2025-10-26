@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 let socket = null;
 export const connectSocket = (userId, onOnlineUsers) => {
     if (!socket) {
-        socket = io("https://studybuddy-q5l4.onrender.com", {
+        socket = io(`${import.meta.env.VITE_API_URI}`, {
             query: { userId },
             withCredentials: true,
         });

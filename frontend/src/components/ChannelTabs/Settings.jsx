@@ -40,7 +40,7 @@ const Settings = ({ channel }) => {
                     }
                 </button>
             </div>*/}
-            <div className='p-2 md:p-5 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
+            <div className='p-4 md:p-5 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
             dark:hover:bg-zinc-950/10 rounded-lg md:rounded-xl border border-zinc-200 dark:border-zinc-800 text-sm'>
                 <p className='flex-1'>Maximum participants</p>
                 <select
@@ -54,7 +54,7 @@ const Settings = ({ channel }) => {
                     <option className='bg-zinc-300 dark:bg-zinc-800' value={25}>25</option>
                 </select>
             </div>
-            <div className='p-2 md:p-5 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
+            <div className='p-4 md:p-5 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
             dark:hover:bg-zinc-950/10 rounded-lg md:rounded-xl border border-zinc-200 dark:border-zinc-800 text-sm'>
                 <p className='flex-1'>Maximum editors</p>
                 <select
@@ -68,7 +68,7 @@ const Settings = ({ channel }) => {
                     <option className='bg-zinc-300 dark:bg-zinc-800' value={5}>5</option>
                 </select>
             </div>
-            <div onClick={() => setDeleteChannelOpen(true)} className='w-full p-3 md:p-6 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
+            <div onClick={() => setDeleteChannelOpen(true)} className='w-full p-5 md:p-6 flex items-center gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 
               dark:hover:bg-zinc-950/10 rounded-lg md:rounded-xl border border-zinc-200 dark:border-zinc-800 text-sm text-red-500 cursor-pointer'>
                 <p className='flex-1'>Delete Channel</p>
                 <MdDelete size={20} />

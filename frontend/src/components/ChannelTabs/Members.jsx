@@ -26,7 +26,7 @@ const Members = ({ channel }) => {
 
     useEffect(() => {
         if (input === "") {
-            searchedMembers([]);
+            setSearchedMembers([]);
         } else if (input) {
             const filteredMembers = members.filter((m) =>
                 m.user?.fullName?.toLowerCase().includes(input.toLowerCase())

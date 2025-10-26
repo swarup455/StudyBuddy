@@ -66,6 +66,9 @@ const authSlice = createSlice({
         },
         clearError: (state) => {
             state.error = null;
+        },
+        setAuthUser: (state, action) => {
+            state.authUser = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -78,6 +81,7 @@ const authSlice = createSlice({
             .addCase(loginAndSignupUser.fulfilled, (state, action) => {
                 state.pending = false;
                 state.authUser = action.payload.user;
+                localStorage.setItem("authUser", JSON.stringify(action.payload.user));
                 if (action.payload.state === "login") toast.success("Logged in successfully!");
                 else toast.success("Signed Up successfully!");
             })
@@ -111,6 +115,7 @@ const authSlice = createSlice({
                 state.onlineUsers = [];
                 state.isConnected = false;
                 state.pending = false;
+                localStorage.removeItem("authUser");
             })
             .addCase(logout.rejected, (state, action) => {
                 state.error = action.payload;
@@ -132,5 +137,5 @@ const authSlice = createSlice({
     }
 })
 
-export const { setOnlineUsers, disconnectSocket, clearError } = authSlice.actions;
+export const { setOnlineUsers, disconnectSocket, clearError, setAuthUser } = authSlice.actions;
 export default authSlice.reducer
