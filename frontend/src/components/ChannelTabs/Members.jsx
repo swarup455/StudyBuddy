@@ -8,11 +8,13 @@ import { MdViewAgenda } from "react-icons/md";
 import { kickOutUser, updateRole, clearError } from '../../reduxToolkit/channel/channelSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
+import { RxCross2 } from "react-icons/rx";
 import toast from "react-hot-toast"
 
 const Members = ({ channel }) => {
     const members = channel.participants;
     const [input, setInput] = useState('');
+    const [searchedMembers, setSearchedMembers] = useState();
     const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
     const [currMember, setCurrentMember] = useState(null);
     const { error } = useSelector((state) => state.channel);
@@ -21,6 +23,17 @@ const Members = ({ channel }) => {
 
     const menuRef = useRef(null);
     const containerRef = useRef(null);
+
+    useEffect(() => {
+        if (input === "") {
+            searchedMembers([]);
+        } else if (input) {
+            const filteredMembers = members.filter((m) =>
+                m.user?.fullName?.toLowerCase().includes(input.toLowerCase())
+            );
+            setSearchedMembers(filteredMembers);
+        }
+    }, [input, members]);
 
     const handleMenuClick = (memberId, e) => {
         e.stopPropagation();
@@ -92,7 +105,7 @@ const Members = ({ channel }) => {
                 }
             </div>
             <ul className='flex-1 overflow-y-scroll space-y-3'>
-                {members.map((member) => (
+                {(input ? searchedMembers : members).map((member) => (
                     <li className='relative p-3 md:p-5 h-15 md:h-18 flex items-center gap-2 md:gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 dark:hover:bg-zinc-950/10 
                     rounded-xl border border-zinc-200 dark:border-zinc-800 text-sm' key={member?.user?._id}>
                         <UserLogo name={member?.user?.fullName} about={member?.user?.about}

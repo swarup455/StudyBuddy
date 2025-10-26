@@ -146,11 +146,11 @@ const HomePage = () => {
         {selectedUser && (
           <>
             <div className='h-13 w-full flex items-center gap-3 p-2 border-b border-zinc-300 dark:border-zinc-800'>
-              <button
-                onClick={() => setSelectedUser(null)}
+              <Link
+                to="/"
                 className='mx-1 text-zinc-600 dark:text-zinc-400 cursor-pointer'>
                 <FaArrowLeft />
-              </button>
+              </Link>
               <button
                 onClick={() => setProfileOpen(true)}
                 className='h-full flex items-center gap-5 px-3 py-1 hover:bg-zinc-300/50 dark:hover:bg-zinc-800/50 rounded-md cursor-pointer'>

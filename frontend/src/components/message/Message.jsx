@@ -27,15 +27,22 @@ const Message = ({
     lastMessageId
 }) => {
     const { authUser } = useSelector((state) => state.auth);
-    const user = (sender?._id === authUser?._id || !receiver) ? sender : receiver;
-
+    
     return (
         <li className='max-w-full flex items-start gap-3 px-4 py-1 border border-zinc-300 dark:border-zinc-800 rounded-xl my-3 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 group'>
-            <img
-                className='h-10 w-10 rounded-full mt-1 flex-shrink-0'
-                src={user?.profilePic || "/demo.png"}
-                alt="dp"
-            />
+            {sender?._id === authUser?._id ?
+                <img
+                    className='h-10 w-10 rounded-full mt-1 flex-shrink-0'
+                    src={authUser?.profilePic || "/demo.png"}
+                    alt="dp"
+                />
+                :
+                <img
+                    className='h-10 w-10 rounded-full mt-1 flex-shrink-0'
+                    src={sender?.profilePic || "/demo.png"}
+                    alt="dp"
+                />
+            }
             <div className='flex-1 min-w-0'>
                 <div className='flex items-baseline gap-2 mb-1'>
                     <span className='font-semibold text-sm text-zinc-700 dark:text-zinc-400'>
