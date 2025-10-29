@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { FaArrowLeft, FaPlus } from 'react-icons/fa6';
 import { useRef, useEffect } from 'react';
 import { SimpleEditor } from '.././@/components/tiptap-templates/simple/simple-editor.jsx';
-import { IoSend } from 'react-icons/io5';
+import { IoMdArrowUp } from "react-icons/io";
 import { RxCross2 } from 'react-icons/rx';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
@@ -18,6 +18,24 @@ import { BiSolidMessageAltDetail } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
 import ProfilePopup from '../components/Popups/ProfilePopup.jsx';
 import { CgUnavailable } from "react-icons/cg";
+
+const MemoizedMessages = React.memo(({ messages, handleMenuClick, chatPending, lastMessageId }) => (
+  <ul className="flex-1 w-full flex flex-col items-start justify-end">
+    {messages.map((item) => (
+      <li
+        key={item._id}
+        onClick={(e) => handleMenuClick({ userId: item.senderId, e })}
+      >
+        <Message
+          item={item}
+          sender={item.senderId}
+          chatPending={chatPending}
+          lastMessageId={lastMessageId}
+        />
+      </li>
+    ))}
+  </ul>
+));
 
 const StudyRoom = () => {
   const [text, setText] = useState();
@@ -62,15 +80,19 @@ const StudyRoom = () => {
 
   const handleMenuClick = ({ userId, e }) => {
     e.stopPropagation();
-    const button = e.currentTarget;
-    const rect = button.getBoundingClientRect();
+    if (currentUserId?._id === userId._id) {
+      setCurrentUserId(null);
+      return;
+    }
+    const element = e.currentTarget;
+    const rect = element.getBoundingClientRect();
     const containerRect = messagesContainerRef.current.getBoundingClientRect();
 
+    setCurrentUserId(userId);
     setMenuPosition({
       top: rect.top - containerRect.top + 20,
-      left: rect.left + 150
+      left: rect.left + 150,
     });
-    setCurrentUserId(currentUserId === userId ? null : userId);
   };
 
   useEffect(() => {
@@ -142,7 +164,7 @@ const StudyRoom = () => {
   const isEditor = currChannelUsers?.find((item) => item.user._id === authUser?._id)?.role === "Editor";
   // Check if the user is a participant of the current channel
   let isUserParticipant = !!(allChannels && Array.isArray(allChannels) && allChannels.some((ch) => ch.channelId === channelId));
-  
+
   if (!isUserParticipant) {
     return (
       <div className='h-full w-full flex items-start justify-center'>
@@ -168,16 +190,16 @@ const StudyRoom = () => {
             <ImSpinner8 size={25} className='text-zinc-700 dark:text-zinc-500 animate-spin' />
           </div>
         )}
-        <div className='h-15 w-full md:max-w-md absolute bottom-10 left-1/2 -translate-x-1/2 p-3 flex items-center justify-center gap-5'>
+        <div className='h-13 bg-zinc-300/50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded-full md:max-w-md absolute bottom-7 left-1/2 -translate-x-1/2 p-3 flex items-center justify-center gap-5'>
           <button
             onClick={() => setChannelOpen(true)}
-            className='h-full bg-slate-800 text-xs md:text-sm px-2 py-1 rounded-full flex gap-2 items-center border border-zinc-200 dark:border-zinc-800 cursor-pointer'>
+            className='h-full text-xs md:text-sm px-2 py-1 rounded-full flex gap-2 items-center cursor-pointer'>
             <img className='h-full aspect-square' src="/channelIcon.svg" alt="icon" />
             {currChannel?.channelName || "Channel"}
           </button>
           <button
             onClick={() => setChatsOpen(true)}
-            className='h-full bg-slate-800 text-xs md:text-sm px-2 py-1 lg:hidden rounded-full flex gap-2 items-center border border-zinc-200 dark:border-zinc-800 cursor-pointer'>
+            className='h-full text-xs md:text-sm px-2 py-1 lg:hidden rounded-full flex gap-2 items-center cursor-pointer'>
             <img className='h-5 aspect-square' src="/chat3.svg" alt="icon" />
             Open Chats
           </button>
@@ -185,9 +207,9 @@ const StudyRoom = () => {
       </div>
       <div className={`${chatsOpen ? 'flex' : 'hidden'} lg:flex flex-col w-full border-l border-zinc-300 dark:border-zinc-800 
       lg:max-w-sm xl:max-w-105 px-5`}>
-        <div className='h-13 w-full flex items-center gap-3 py-3 shadow'>
+        <div className='h-13 w-full flex items-center gap-3 py-3 border-b border-zinc-300 dark:border-zinc-800'>
           <button
-            onClick={() => setChatsOpen(null)}
+            onClick={() => setChatsOpen(false)}
             className='mx-1 block lg:hidden text-zinc-600 dark:text-zinc-500 cursor-pointer'>
             <FaArrowLeft size={20} />
           </button>
@@ -196,26 +218,13 @@ const StudyRoom = () => {
           </p>
         </div>
         <div ref={messagesContainerRef} className='flex-1 w-full flex flex-col overflow-y-scroll'>
-          <ul className='flex-1 w-full flex flex-col items-start justify-end'>
-            {isUserParticipant && messages.map((item) => (
-              <button
-                key={item._id}
-                disabled={item.senderId._id === authUser._id}
-                onClick={(e) => {
-                  if (item.senderId._id !== authUser._id) {
-                    handleMenuClick({ userId: item.senderId, e })
-                  }
-                }}>
-                <Message
-                  key={item}
-                  item={item}
-                  sender={item.senderId}
-                  chatPending={chatPending}
-                  lastMessageId={lastMessageId}
-                />
-              </button>
-            ))}
-          </ul>
+          <MemoizedMessages
+            messages={messages}
+            authUser={authUser}
+            chatPending={chatPending}
+            lastMessageId={lastMessageId}
+            handleMenuClick={handleMenuClick}
+          />
         </div>
         {currentUserId && !profileOpen && (
           <>
@@ -223,8 +232,8 @@ const StudyRoom = () => {
               onClick={(e) => e.stopPropagation()}
               style={{ position: 'absolute', top: `${menuPosition.top}px`, left: `${menuPosition.left}px` }}
               className="z-50 w-40 p-3 rounded-xl bg-zinc-300 dark:bg-zinc-800 border border-zinc-300/30 dark:border-zinc-700/30 shadow-lg">
-              <button onClick={() => { setCurrentUserId(false) }} className="w-full text-left p-2 text-sm hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 rounded-lg cursor-pointer">
-                <Link to={`/chat/${currentUserId._id}`} className='flex items-center justify-start gap-3'>
+              <button onClick={() => { setCurrentUserId(null) }} className="w-full text-left p-2 text-sm hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 rounded-lg cursor-pointer">
+                <Link to={`/chat/${currentUserId}`} className='flex items-center justify-start gap-3'>
                   <BiSolidMessageAltDetail size={20} className='text-zinc-600 dark:text-zinc-500' />
                   Message
                 </Link>
@@ -238,8 +247,15 @@ const StudyRoom = () => {
             </div>
           </>
         )}
-        <ProfilePopup isOpen={profileOpen} onClose={() => {setProfileOpen(false), setCurrentUserId(null)}} user={currentUserId} />
-        <div className='w-full flex flex-col p-5 border border-zinc-300 dark:border-zinc-800 rounded-xl my-2'>
+        <ProfilePopup
+          isOpen={profileOpen}
+          onClose={() => { setProfileOpen(false), setCurrentUserId(null) }}
+          user={allChannels
+            .flatMap(ch => ch.participants.map(p => p.user))
+            .find(u => u._id === currentUserId)
+          }
+        />
+        <div className='w-full flex flex-col p-5 border border-zinc-300 dark:border-zinc-800 rounded-xl my-3 bg-zinc-300/50 dark:bg-zinc-800/50'>
           {image && (
             <div className='w-fit relative mb-2'>
               <img
@@ -288,9 +304,9 @@ const StudyRoom = () => {
             {(text || image) && (
               <button
                 onClick={() => handleSendToChannel({ text, image })}
-                className='cursor-pointer'
+                className='cursor-pointer bg-violet-600 p-2 rounded-full'
               >
-                <IoSend size={22} className='text-zinc-400 dark:text-zinc-700' />
+                <IoMdArrowUp size={20} />
               </button>
             )}
           </div>

@@ -5,20 +5,29 @@ import { useSelector, useDispatch } from 'react-redux';
 import { deleteChannel } from '../../reduxToolkit/channel/channelSlice';
 import { clearError } from '../../reduxToolkit/channel/channelSlice';
 import { CgSpinner } from 'react-icons/cg';
+import { useNavigate } from 'react-router-dom'
 import toast from "react-hot-toast";
 
 const DeleteChannel = ({ isOpen, onClose, channelId }) => {
     const containerRef = useClickOutside(onClose, isOpen);
     const { pending, error } = useSelector((state) => state.channel);
     const dispatch = useDispatch();
-    
-    const handleDeleteChannel = () => {
-        if(channelId){
-            dispatch(deleteChannel(channelId));
+    const navigate = useNavigate();
+    const handleDeleteChannel = async (channelId) => {
+        if (!channelId) return;
+        try {
+            const result = await dispatch(deleteChannel(channelId)).unwrap();
+            console.log("Channel deleted:", result);
+            toast.success("Channel deleted successfully!");
+            navigate("/");
+        } catch (error) {
+            console.error("Failed to delete channel:", error);
+            toast.error(error || "Failed to delete channel!");
         }
-    }
+    };
+
     useEffect(() => {
-        if(error) toast.error(error);
+        if (error) toast.error(error);
         dispatch(clearError());
     }, [error])
 
@@ -34,7 +43,7 @@ const DeleteChannel = ({ isOpen, onClose, channelId }) => {
                     Nahh, Just jocking!
                 </button>
                 <button
-                    onClick={handleDeleteChannel}
+                    onClick={() => handleDeleteChannel(channelId)}
                     className='w-full border-3 border-violet-500 p-3 text-violet-600 dark:text-zinc-200 font-semibold flex items-center gap-2 justify-center rounded-full cursor-pointer'>
                     {pending && <CgSpinner size={20} className='text-violet-500 animate-spin' />}
                     Yes, Delete this channel!

@@ -87,7 +87,7 @@ const Members = ({ channel }) => {
     }, [() => setCurrentMember(null), currMember]);
 
     return (
-        <div ref={containerRef} className='relative w-full flex-1 space-y-5'>
+        <div ref={containerRef} className='relative w-full flex-1 space-y-5 overflow-y-scroll'>
             <div className='w-full p-3 flex items-center gap-3 rounded-xl border border-zinc-300 dark:border-zinc-800 hover:bg-zinc-400/30 dark:hover:bg-zinc-800/30'>
                 <CiSearch size={20} className='text-zinc-500 dark:text-zinc-600' />
                 <input
@@ -104,7 +104,7 @@ const Members = ({ channel }) => {
                         onClick={() => setInput('')} />
                 }
             </div>
-            <ul className='flex-1 overflow-y-scroll space-y-3'>
+            <ul className='flex-1 space-y-3'>
                 {(input ? searchedMembers : members).map((member) => (
                     <li className='relative p-3 md:p-5 h-15 md:h-18 flex items-center gap-2 md:gap-5 group bg-zinc-300/30 dark:bg-zinc-950/30 hover:bg-zinc-300/10 dark:hover:bg-zinc-950/10 
                     rounded-xl border border-zinc-200 dark:border-zinc-800 text-sm' key={member?.user?._id}>

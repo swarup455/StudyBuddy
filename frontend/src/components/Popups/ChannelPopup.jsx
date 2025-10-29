@@ -32,7 +32,7 @@ const ChannelPopup = ({ isOpen, onClose, channel, media }) => {
             className="w-full h-2/3 sm:h-3/4 md:h-7/8 max-w-md md:max-w-lg flex flex-col gap-8 px-3 py-5 md:px-5 md:py-8 rounded-lg border bg-zinc-100 dark:bg-zinc-900 border-zinc-300 dark:border-zinc-800 relative shadow-xl"
           >
             <div className="w-full">
-              <ul className="w-full flex items-center justify-center border-b border-zinc-200 dark:border-zinc-800 gap-2 md:gap-5 overflow-x-auto whitespace-nowrap">
+              <ul className="w-full flex items-center justify-center border-b border-zinc-200 dark:border-zinc-800 gap-4 md:gap-5 overflow-x-auto whitespace-nowrap">
                 {settings.map((item) => (
                   <li key={item}>
                     <button

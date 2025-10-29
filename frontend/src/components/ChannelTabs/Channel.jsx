@@ -121,7 +121,7 @@ const Channel = ({ channel }) => {
        px-5 py-10 rounded-xl border border-zinc-200 dark:border-zinc-800'>
         <div
           ref={editRef}
-          className='relative w-1/3 md:w-1/4 aspect-square mb-4'
+          className='relative w-1/4 md:w-1/4 aspect-square mb-4'
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}>
           <img

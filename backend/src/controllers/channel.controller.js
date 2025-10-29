@@ -188,7 +188,7 @@ export const deleteChannel = asyncHandler(async (req, res) => {
     const channelName = channel.channelName;
 
     // Delete using channelId
-    await Message.deleteMany({ channelId });
+    await Message.deleteMany({ channelId: channel._id });
     await Channel.deleteOne({ channelId });
 
     return res

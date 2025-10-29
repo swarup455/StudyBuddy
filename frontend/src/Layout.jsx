@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Navigate, Route, useParams, Routes } from "react-router-dom"
 import Homepage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -17,6 +17,8 @@ import { setAuthUser } from './reduxToolkit/auth/authSlice'
 import { ImSpinner8 } from "react-icons/im";
 
 const Layout = () => {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
     const { channelId } = useParams();
     const dispatch = useDispatch();
     useEffect(() => {
@@ -26,7 +28,7 @@ const Layout = () => {
     }, [dispatch]);
 
 
-    const { authUser, pending, initialized } = useSelector((state) => state.auth);
+    const { authUser, initialized } = useSelector((state) => state.auth);
     useEffect(() => {
         if (authUser) {
             dispatch(getChannels());
@@ -34,16 +36,27 @@ const Layout = () => {
     }, [channelId, authUser, dispatch])
 
     useEffect(() => {
-        if (authUser?._id) {
-            initSocket(authUser._id, (users) => {
-                dispatch(setOnlineUsers(users));
-            });
+        if (!authUser?._id) return;
+        let connected = false;
+        const connect = async () => {
+            if (!connected) {
+                initSocket(authUser._id, (users) => {
+                    dispatch(setOnlineUsers(users));
+                });
+                connected = true;
+            }
+        };
+        connect();
 
-            return () => closeSocket();
-        }
-    }, [authUser, dispatch]);
+        return () => {
+            if (connected) {
+                closeSocket();
+                connected = false;
+            }
+        };
+    }, [authUser?._id, dispatch]);
 
-    if (pending || !initialized) {
+    if (!initialized) {
         return (
             <div className='fixed inset-0 flex items-center justify-center'>
                 <ImSpinner8 size={30} className='text-violet-600 animate-spin' />
@@ -54,9 +67,9 @@ const Layout = () => {
     return (
         <div className='h-screen w-full flex flex-row bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100'>
             <Toaster />
-            {authUser && <Sidebar />}
+            {authUser && <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />}
             <div className='flex flex-col flex-1 overflow-hidden'>
-                {authUser && <Header />}
+                {authUser && <Header onOpen={() => setSidebarOpen(true)} />}
                 <div className='flex-1 overflow-y-auto'>
                     <Routes>
                         <Route path='/' element={authUser ? <Homepage /> : <Navigate to="/login" />} />

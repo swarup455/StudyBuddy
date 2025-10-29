@@ -5,9 +5,9 @@ import { getAllUsers, getMessages, sendMessage } from '../reduxToolkit/chat/chat
 import { useSelector, useDispatch } from "react-redux"
 import { RxCross2 } from "react-icons/rx";
 import { FaPlus } from "react-icons/fa6";
-import { IoSend } from "react-icons/io5";
 import Message from '../components/message/Message';
 import { FaArrowLeft } from "react-icons/fa";
+import { IoMdArrowUp } from 'react-icons/io';
 import { useParams } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -92,7 +92,7 @@ const HomePage = () => {
   return (
     <div className="flex flex-row w-full h-full overflow-hidden">
       <div className={`flex flex-col w-full md:max-w-xs lg:max-w-sm ${selectedUser ? 'hidden' : 'block'} md:block border-r border-r-zinc-700/30 px-5`}>
-        <div className='w-full p-3 flex items-center gap-3 rounded-xl border border-zinc-300 dark:border-zinc-800 hover:bg-zinc-400/30 dark:hover:bg-zinc-800/30 my-5'>
+        <div className='w-full p-3 flex items-center gap-3 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-400/30 dark:bg-zinc-800/30 hover:bg-zinc-200/30 dark:hover:bg-zinc-900/30 my-5'>
           <CiSearch size={20} className='text-zinc-500 dark:text-zinc-600' />
           <input
             value={input}
@@ -170,14 +170,14 @@ const HomePage = () => {
             <div ref={messagesEndRef} className='flex-1 w-full flex flex-col overflow-y-scroll'>
               <ul className='flex-1 w-full flex flex-col items-start justify-end'>
                 {[...messages].map((item) => (
-                  <Message
-                    key={item?._id}
-                    item={item}
-                    sender={item.senderId}
-                    receiver={item.receiverId}
-                    chatPending={chatPending}
-                    lastMessageId={lastMessageId}
-                  />
+                  <li key={item?._id}>
+                    <Message
+                      item={item}
+                      sender={item.senderId}
+                      chatPending={chatPending}
+                      lastMessageId={lastMessageId}
+                    />
+                  </li>
                 ))}
               </ul>
             </div>
@@ -230,9 +230,9 @@ const HomePage = () => {
                 {(text || image) && (
                   <button
                     onClick={() => handleSend({ text, image })}
-                    className='cursor-pointer'
+                    className='cursor-pointer bg-violet-600 p-2 rounded-full'
                   >
-                    <IoSend size={22} className='text-zinc-400 dark:text-zinc-700' />
+                    <IoMdArrowUp size={20} />
                   </button>
                 )}
               </div>

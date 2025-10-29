@@ -22,14 +22,13 @@ const formatMessageTime = (timestamp) => {
 const Message = ({
     item,
     sender,
-    receiver,
     chatPending,
     lastMessageId
 }) => {
     const { authUser } = useSelector((state) => state.auth);
     
     return (
-        <li className='max-w-full flex items-start gap-3 px-4 py-1 border border-zinc-300 dark:border-zinc-800 rounded-xl my-3 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 group'>
+        <div className='max-w-full flex items-start gap-3 px-4 py-1 border border-zinc-300 dark:border-zinc-800 rounded-xl my-3 bg-zinc-300/50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-900/50 group'>
             {sender?._id === authUser?._id ?
                 <img
                     className='h-10 w-10 rounded-full mt-1 flex-shrink-0'
@@ -79,7 +78,7 @@ const Message = ({
                     </div>
                 )}
             </div>
-        </li>
+        </div>
     )
 }
 
