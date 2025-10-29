@@ -109,7 +109,6 @@ const Sidebar = ({ isOpen, onClose }) => {
           <p>Settings</p>
         </Link>
       </aside>
-
       <AnimatePresence>
         {isOpen && (
           <motion.aside
@@ -117,10 +116,10 @@ const Sidebar = ({ isOpen, onClose }) => {
             initial="closed"
             animate="open"
             exit="closed"
-            className='fixed top-0 left-0 h-screen w-64 sm:w-72 px-3 flex flex-col border-r border-zinc-400/30 dark:border-zinc-700/30 bg-zinc-100 dark:bg-zinc-900 z-40 lg:hidden'
+            className='fixed rounded-2xl top-0 left-0 h-screen w-64 sm:w-72 px-3 flex flex-col border-r border-zinc-400/30 dark:border-zinc-700/30 bg-zinc-100 dark:bg-zinc-900 z-40 lg:hidden'
           >
-            <Link to="/" className='h-15 p-2 my-5 flex items-center gap-3 hover:bg-zinc-400/30 dark:hover:bg-zinc-800/30 rounded-lg'>
-              <div onClick={onClose} className='h-full aspect-square bg-violet-500 text-white flex items-center justify-center overflow-hidden rounded-full'>
+            <Link to="/" onClick={onClose} className='h-15 p-2 my-5 flex items-center gap-3 hover:bg-zinc-400/30 dark:hover:bg-zinc-800/30 rounded-lg'>
+              <div className='h-full aspect-square bg-violet-500 text-white flex items-center justify-center overflow-hidden rounded-full'>
                 <GrHomeOption />
               </div>
               <p>Home</p>
@@ -160,8 +159,8 @@ const Sidebar = ({ isOpen, onClose }) => {
                 </button>
               </div>
             )}
-            <Link to="/settings" className='w-full flex items-center gap-3 cursor-pointer h-15 p-2 my-5 hover:bg-zinc-400/30 dark:hover:bg-zinc-800/30 rounded-lg'>
-              <div onClick={onClose} className='h-full aspect-square bg-zinc-200 dark:bg-zinc-800 text-zinc-500 flex items-center justify-center overflow-hidden rounded-full'>
+            <Link to="/settings" onClick={onClose} className='w-full flex items-center gap-3 cursor-pointer h-15 p-2 my-5 hover:bg-zinc-400/30 dark:hover:bg-zinc-800/30 rounded-lg'>
+              <div className='h-full aspect-square bg-zinc-200 dark:bg-zinc-800 text-zinc-500 flex items-center justify-center overflow-hidden rounded-full'>
                 <IoMdSettings size={20} />
               </div>
               <p>Settings</p>

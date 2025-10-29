@@ -3,6 +3,15 @@ import api from "./authApi.js"
 import toast from "react-hot-toast"
 import { extractErrorMessage } from "../../../utils/errorHandler.js"
 
+const storedUser = (() => {
+    try {
+        const data = JSON.parse(localStorage.getItem("authUser"));
+        return data && typeof data === "object" ? data : null;
+    } catch {
+        return null;
+    }
+})();
+
 export const checkAuth = createAsyncThunk(
     "auth/checkAuth", async (_, { rejectWithValue, dispatch }) => {
         try {
@@ -54,7 +63,7 @@ export const updateProfile = createAsyncThunk(
 const authSlice = createSlice({
     name: "auth",
     initialState: {
-        authUser: null,
+        authUser: storedUser,
         onlineUsers: [],
         isConnected: false,
         pending: false,
@@ -67,9 +76,6 @@ const authSlice = createSlice({
         },
         clearError: (state) => {
             state.error = null;
-        },
-        setAuthUser: (state, action) => {
-            state.authUser = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -107,6 +113,7 @@ const authSlice = createSlice({
             .addCase(checkAuth.rejected, (state, action) => {
                 state.pending = false;
                 state.error = action.payload;
+                state.authUser = null;
                 state.initialized = true;
             })
             //logout
