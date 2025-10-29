@@ -10,6 +10,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from "react-router-dom";
 import { RxCross2 } from "react-icons/rx";
 import toast from "react-hot-toast"
+import { BiSolidMessageAltDetail } from "react-icons/bi";
+import { CgProfile } from "react-icons/cg";
+import ProfilePopup from '../../components/Popups/ProfilePopup';
+import { Link } from 'react-router-dom';
 
 const Members = ({ channel }) => {
     const members = channel.participants;
@@ -17,6 +21,7 @@ const Members = ({ channel }) => {
     const [searchedMembers, setSearchedMembers] = useState();
     const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
     const [currMember, setCurrentMember] = useState(null);
+    const [profileOpen, setProfileOpen] = useState(false);
     const { error } = useSelector((state) => state.channel);
     const dispatch = useDispatch();
     const { channelId } = useParams();
@@ -78,7 +83,7 @@ const Members = ({ channel }) => {
                 setCurrentMember(null);
             }
         };
-        if (currMember) {
+        if (currMember && !profileOpen) {
             document.addEventListener("mousedown", handleClickOutside);
         }
         return () => {
@@ -123,30 +128,47 @@ const Members = ({ channel }) => {
             {currMember && (
                 <div ref={menuRef}
                     style={{ position: 'absolute', top: `${menuPosition.top}px`, left: `${menuPosition.left}px` }}
-                    className="z-50 w-40 p-3 rounded-xl bg-zinc-300 dark:bg-zinc-800 border border-zinc-300/30 dark:border-zinc-700/30 shadow-lg">
+                    className="z-50 w-40 py-3 px-2 rounded-xl bg-zinc-300 dark:bg-zinc-800 border border-zinc-300/30 dark:border-zinc-700/30 shadow-lg">
                     <button onClick={() => { setCurrentMember(false), handleChangeRole({ member: currMember, role: currMember.role === "Editor" ? "Viewer" : "Editor" }) }} className="w-full text-left p-2 text-sm hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 rounded-lg cursor-pointer">
                         <span className='flex items-center justify-start gap-3'>
                             {currMember.role === "Viewer" ?
                                 <>
-                                    <FaPenToSquare className='text-zinc-600 dark:text-zinc-400' />
+                                    <FaPenToSquare size={20} className='text-zinc-600 dark:text-zinc-500' />
                                     Make Editor
                                 </>
                                 :
                                 <>
-                                    <MdViewAgenda className='text-zinc-600 dark:text-zinc-400' />
+                                    <MdViewAgenda size={20} className='text-zinc-600 dark:text-zinc-500' />
                                     Remove Editor
                                 </>
                             }
                         </span>
                     </button>
+                    <button className="w-full text-left p-2 text-sm hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 rounded-lg cursor-pointer">
+                        <Link to={`/chat/${currMember?.user?._id}`} className='flex items-center justify-start gap-3'>
+                            <BiSolidMessageAltDetail size={20} className='text-zinc-600 dark:text-zinc-500' />
+                            Message
+                        </Link>
+                    </button>
+                    <button onClick={() => setProfileOpen(true)} className="w-full text-left p-2 text-sm hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 rounded-lg cursor-pointer">
+                        <span className='flex items-center justify-start gap-3'>
+                            <CgProfile size={20} className='text-zinc-600 dark:text-zinc-500' />
+                            View profile
+                        </span>
+                    </button>
                     <button onClick={() => { setCurrentMember(false), handleKickoutUser({ member: currMember }) }} className="w-full text-left p-2 text-sm hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 rounded-lg cursor-pointer">
                         <span className='flex items-center justify-start gap-3'>
-                            <IoPersonRemoveSharp className='text-zinc-600 dark:text-zinc-400' />
+                            <IoPersonRemoveSharp size={20} className='text-zinc-600 dark:text-zinc-500' />
                             Kickout User
                         </span>
                     </button>
                 </div>
             )}
+            <ProfilePopup
+                isOpen={profileOpen}
+                onClose={() => setProfileOpen(false)}
+                user={currMember?.user}
+            />
         </div>
     )
 }

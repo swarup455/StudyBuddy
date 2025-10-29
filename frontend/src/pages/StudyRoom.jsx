@@ -14,28 +14,7 @@ import * as Y from 'yjs'
 import { WebsocketProvider } from "y-websocket"
 import { getDocument } from '../reduxToolkit/channel/channelSlice.js';
 import { ImSpinner8 } from 'react-icons/im';
-import { BiSolidMessageAltDetail } from "react-icons/bi";
-import { CgProfile } from "react-icons/cg";
-import ProfilePopup from '../components/Popups/ProfilePopup.jsx';
 import { CgUnavailable } from "react-icons/cg";
-
-const MemoizedMessages = React.memo(({ messages, handleMenuClick, chatPending, lastMessageId }) => (
-  <ul className="flex-1 w-full flex flex-col items-start justify-end">
-    {messages.map((item) => (
-      <li
-        key={item._id}
-        onClick={(e) => handleMenuClick({ userId: item.senderId, e })}
-      >
-        <Message
-          item={item}
-          sender={item.senderId}
-          chatPending={chatPending}
-          lastMessageId={lastMessageId}
-        />
-      </li>
-    ))}
-  </ul>
-));
 
 const StudyRoom = () => {
   const [text, setText] = useState();
@@ -46,9 +25,6 @@ const StudyRoom = () => {
   const { authUser, pending: authPending } = useSelector((state) => state.auth);
   const { channelId } = useParams();
   const { messages, pending: chatPending, lastMessageId } = useSelector((state) => state.chat);
-  const [currentUserId, setCurrentUserId] = useState(null);
-  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
-  const [profileOpen, setProfileOpen] = useState(false);
   const messagesWithMedia = messages.filter(message => message.image);
 
   useSocketChannelMessages({ channelId, authUser });
@@ -68,7 +44,6 @@ const StudyRoom = () => {
     setImage(null);
   }
 
-  const menuRef = useRef(null);
   const messagesContainerRef = useRef(null);
 
   useEffect(() => {
@@ -77,37 +52,6 @@ const StudyRoom = () => {
       behavior: 'smooth'
     });
   }, [messages]);
-
-  const handleMenuClick = ({ userId, e }) => {
-    e.stopPropagation();
-    if (currentUserId === userId) {
-      setCurrentUserId(null);
-      return;
-    }
-    const element = e.currentTarget;
-    const rect = element.getBoundingClientRect();
-    const containerRect = messagesContainerRef.current.getBoundingClientRect();
-
-    setCurrentUserId(userId);
-    setMenuPosition({
-      top: rect.top - containerRect.top + 20,
-      left: rect.left + 150,
-    });
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setCurrentUserId(null);
-      }
-    };
-    if (currentUserId) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [currentUserId]);
 
   const textareaRef = useRef(null);
   useEffect(() => {
@@ -218,40 +162,15 @@ const StudyRoom = () => {
           </p>
         </div>
         <div ref={messagesContainerRef} className='flex-1 w-full flex flex-col overflow-y-scroll'>
-          <MemoizedMessages
-            messages={messages}
-            authUser={authUser}
-            chatPending={chatPending}
-            lastMessageId={lastMessageId}
-            handleMenuClick={handleMenuClick}
-          />
+          {messages?.map((item) => (
+            <Message
+              item={item}
+              sender={item.senderId}
+              chatPending={chatPending}
+              lastMessageId={lastMessageId}
+            />
+          ))}
         </div>
-        {currentUserId && !profileOpen && (
-          <>
-            <div ref={menuRef}
-              onClick={(e) => e.stopPropagation()}
-              style={{ position: 'absolute', top: `${menuPosition.top}px`, left: `${menuPosition.left}px` }}
-              className="z-50 w-40 p-3 rounded-xl bg-zinc-300 dark:bg-zinc-800 border border-zinc-300/30 dark:border-zinc-700/30 shadow-lg">
-              <button onClick={() => { setCurrentUserId(null) }} className="w-full text-left p-2 text-sm hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 rounded-lg cursor-pointer">
-                <Link to={`/chat/${currentUserId?._id}`} className='flex items-center justify-start gap-3'>
-                  <BiSolidMessageAltDetail size={20} className='text-zinc-600 dark:text-zinc-500' />
-                  Message
-                </Link>
-              </button>
-              <button onClick={() => { setProfileOpen(true) }} className="w-full text-left p-2 text-sm hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 rounded-lg cursor-pointer">
-                <span className='flex items-center justify-start gap-3'>
-                  <CgProfile size={20} className='text-zinc-600 dark:text-zinc-500' />
-                  View profile
-                </span>
-              </button>
-            </div>
-          </>
-        )}
-        <ProfilePopup
-          isOpen={profileOpen}
-          onClose={() => { setProfileOpen(false), setCurrentUserId(null) }}
-          user={currChannelUsers?.find((item) => item?._id === currentUserId)}
-        />
         <div className='w-full flex flex-col p-5 border border-zinc-300 dark:border-zinc-800 rounded-xl my-3 bg-zinc-300/50 dark:bg-zinc-800/50'>
           {image && (
             <div className='w-fit relative mb-2'>

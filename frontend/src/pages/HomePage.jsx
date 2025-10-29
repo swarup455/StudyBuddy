@@ -168,18 +168,14 @@ const HomePage = () => {
             </div>
             <ProfilePopup isOpen={profileOpen} onClose={() => setProfileOpen(false)} user={selectedUser} />
             <div ref={messagesEndRef} className='flex-1 w-full flex flex-col overflow-y-scroll'>
-              <ul className='flex-1 w-full flex flex-col items-start justify-end'>
-                {[...messages].map((item) => (
-                  <li key={item?._id}>
-                    <Message
-                      item={item}
-                      sender={item.senderId}
-                      chatPending={chatPending}
-                      lastMessageId={lastMessageId}
-                    />
-                  </li>
-                ))}
-              </ul>
+              {messages?.map((item) => (
+                <Message
+                  item={item}
+                  sender={item.senderId}
+                  chatPending={chatPending}
+                  lastMessageId={lastMessageId}
+                />
+              ))}
             </div>
             <div className='w-full flex flex-col p-5 border border-zinc-300 dark:border-zinc-800 rounded-xl my-2'>
               {image && (
