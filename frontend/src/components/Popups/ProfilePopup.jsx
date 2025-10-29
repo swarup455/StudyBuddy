@@ -13,7 +13,7 @@ const ProfilePopup = ({ isOpen, onClose, user }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (user) dispatch(getMessages(user._id));
+    if (user) dispatch(getMessages(user?._id));
   }, [dispatch, user]);
 
   const media = messages.filter((item) => item.image);
@@ -52,7 +52,7 @@ const ProfilePopup = ({ isOpen, onClose, user }) => {
                 {user?.bio || 'Hey , I am using StudyBuddyジ'}
               </p>
               <span className="flex items-center gap-3">
-                <Link to={`/chat/${user._id}`} className="cursor-pointer">
+                <Link to={`/chat/${user?._id}`} className="cursor-pointer">
                   <BsFillChatSquareTextFill size={20} className="text-green-600" />
                 </Link>
               </span>

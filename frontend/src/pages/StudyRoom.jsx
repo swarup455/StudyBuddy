@@ -80,7 +80,7 @@ const StudyRoom = () => {
 
   const handleMenuClick = ({ userId, e }) => {
     e.stopPropagation();
-    if (currentUserId?._id === userId._id) {
+    if (currentUserId === userId) {
       setCurrentUserId(null);
       return;
     }
@@ -233,7 +233,7 @@ const StudyRoom = () => {
               style={{ position: 'absolute', top: `${menuPosition.top}px`, left: `${menuPosition.left}px` }}
               className="z-50 w-40 p-3 rounded-xl bg-zinc-300 dark:bg-zinc-800 border border-zinc-300/30 dark:border-zinc-700/30 shadow-lg">
               <button onClick={() => { setCurrentUserId(null) }} className="w-full text-left p-2 text-sm hover:bg-zinc-300/30 dark:hover:bg-zinc-700/30 rounded-lg cursor-pointer">
-                <Link to={`/chat/${currentUserId}`} className='flex items-center justify-start gap-3'>
+                <Link to={`/chat/${currentUserId?._id}`} className='flex items-center justify-start gap-3'>
                   <BiSolidMessageAltDetail size={20} className='text-zinc-600 dark:text-zinc-500' />
                   Message
                 </Link>
@@ -250,10 +250,7 @@ const StudyRoom = () => {
         <ProfilePopup
           isOpen={profileOpen}
           onClose={() => { setProfileOpen(false), setCurrentUserId(null) }}
-          user={allChannels
-            .flatMap(ch => ch.participants.map(p => p.user))
-            .find(u => u._id === currentUserId)
-          }
+          user={currChannelUsers?.find((item) => item?._id === currentUserId)}
         />
         <div className='w-full flex flex-col p-5 border border-zinc-300 dark:border-zinc-800 rounded-xl my-3 bg-zinc-300/50 dark:bg-zinc-800/50'>
           {image && (
