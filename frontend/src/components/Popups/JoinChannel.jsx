@@ -7,15 +7,13 @@ import { joinChannel } from '../../reduxToolkit/channel/channelSlice';
 import { ImSpinner8 } from 'react-icons/im';
 import { clearError } from '../../reduxToolkit/channel/channelSlice';
 import { motion, AnimatePresence } from "framer-motion";
-import useClickOutside from '../../customHooks/useClickOutside';
 
 export const JoinChannel = ({ isOpen, onClose }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { pending, error } = useSelector((state) => state.channel);
     const [channelId, setChannelId] = useState("");
-    const joinRef = useClickOutside(onClose, isOpen);
-
+    
     const handleJoinChannel = async (e) => {
         e.preventDefault();
         if (!channelId.trim()) {
@@ -47,10 +45,9 @@ export const JoinChannel = ({ isOpen, onClose }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className='flex items-center justify-center fixed inset-0 z-50 bg-black/20'
+                    className='flex items-center justify-center fixed inset-0 z-50 bg-black/20 mx-8'
                 >
                     <motion.div
-                        ref={joinRef}
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
