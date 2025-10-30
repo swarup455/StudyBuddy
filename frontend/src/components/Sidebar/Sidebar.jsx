@@ -45,11 +45,10 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Backdrop - only on mobile when sidebar is open */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+            className="fixed h-screen inset-0 bg-black/40 z-30 lg:hidden"
             onClick={onClose}
             variants={backdropVariants}
             initial="closed"
@@ -59,7 +58,6 @@ const Sidebar = ({ isOpen, onClose }) => {
         )}
       </AnimatePresence>
 
-      {/* Sidebar - always visible on lg+, no animation */}
       <aside className='hidden lg:flex h-screen w-64 sm:w-72 px-3 flex-col border-r border-zinc-400/30 dark:border-zinc-700/30 bg-zinc-100 dark:bg-zinc-900'>
         <Link to="/" className='h-15 p-2 my-5 flex items-center gap-3 hover:bg-zinc-400/30 dark:hover:bg-zinc-800/30 rounded-lg'>
           <div className='h-full aspect-square bg-violet-500 text-white flex items-center justify-center overflow-hidden rounded-full'>
@@ -116,7 +114,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             initial="closed"
             animate="open"
             exit="closed"
-            className='fixed rounded-2xl top-0 left-0 h-screen w-64 sm:w-72 px-3 flex flex-col border-r border-zinc-400/30 dark:border-zinc-700/30 bg-zinc-100 dark:bg-zinc-900 z-40 lg:hidden'
+            className='fixed top-0 left-0 h-screen w-64 sm:w-72 px-3 flex flex-col border-r border-zinc-400/30 dark:border-zinc-700/30 bg-zinc-100 dark:bg-zinc-900 z-40 lg:hidden'
           >
             <Link to="/" onClick={onClose} className='h-15 p-2 my-5 flex items-center gap-3 hover:bg-zinc-400/30 dark:hover:bg-zinc-800/30 rounded-lg'>
               <div className='h-full aspect-square bg-violet-500 text-white flex items-center justify-center overflow-hidden rounded-full'>
