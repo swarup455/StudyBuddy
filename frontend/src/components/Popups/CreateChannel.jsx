@@ -37,14 +37,14 @@ export const CreateChannel = ({ isOpen, onClose }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className='flex items-center justify-center fixed inset-0 z-50 bg-black/20 mx-8'
+                    className='flex items-center justify-center fixed inset-0 z-50 bg-black/20'
                 >
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         transition={{ duration: 0.2 }}
-                        className='w-full max-w-md shadow-md border border-zinc-300 dark:border-zinc-800 rounded-xl bg-zinc-200 dark:bg-zinc-900 px-8 relative'
+                        className='w-full max-w-md shadow-md border border-zinc-300 dark:border-zinc-800 rounded-xl bg-zinc-200 dark:bg-zinc-900 px-8 mx-6 relative'
                     >
                         <h1 className='w-full text-center text-2xl font-semibold text-zinc-700 dark:text-zinc-300 my-8'>Create Collab</h1>
                         <form onSubmit={handleSubmit}>
