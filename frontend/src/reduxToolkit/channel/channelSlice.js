@@ -248,7 +248,7 @@ const channelSlice = createSlice({
             })
             .addCase(leaveChannel.fulfilled, (state, action) => {
                 state.pending = false;
-                state.allChannels = state.allChannels.filter(ch => ch.channelId === action.meta.arg.channelId);
+                state.allChannels = state.allChannels.filter(ch => ch.channelId !== action.meta.arg.channelId);
             })
             .addCase(leaveChannel.rejected, (state, action) => {
                 state.pending = false;
