@@ -19,12 +19,22 @@ app.use(cors({
 
 app.use(cookieParser())
 
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        success: true,
+        status: "OK",
+        message: "Server is healthy",
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString()
+    })
+})
+
 //route setup
 app.use("/api/auth", userRouter)
-app.use("/api/status", (req, res)=>res.send("server is live"));
+app.use("/api/status", (req, res) => res.send("server is live"));
 app.use("/api/chat", chatRouter)
 app.use("/api/channel", channelRouter)
 
 app.use(errorHandler);
 
-export {app}
+export { app }
