@@ -1,51 +1,172 @@
-# ⚡ Real-Time Collaboration Platform
+# StudyBuddy
 
-> A modern real-time collaboration tool where users can **create shared channels** featuring a collaborative **text editor** and an integrated **chat system** — powered by **Yjs**, **Tiptap**, and **Socket.IO**.
+StudyBuddy is a full-stack real-time collaboration platform that allows teams to work together in shared workspaces. Users can create channels, collaborate on documents in real time, and communicate through integrated group and private chats. The platform is designed to provide a smooth and responsive collaboration experience using modern web technologies.
 
----
+## Live Demo
 
-## 🚀 Demo
-🔗 **Live Demo:** [Click Here](https://vercel-studybuddy.vercel.app)  
-
----
-
-## ✨ Features
-
-### 🧠 Real-Time Collaboration
-- Collaborative **Tiptap editor** using **Yjs + y-websocket** for instant content sync.
-- Channel-based editing where multiple users can co-edit documents simultaneously.
-
-### 💬 Real-Time Chat
-- Built-in **channel chatbox** for group discussions.
-- **1-to-1 private chat** feature with message persistence.
-- Typing indicators & online user tracking using **Socket.IO**.
-
-### 🧩 Channel Management (CRUD)
-- ➕ Create channels  
-- ✏️ Edit channel name and description  
-- 👥 Add or remove members  
-- ❌ Delete channels safely with confirmation prompts and many more
-
-### 👤 User Management
-- 🔐 Secure authentication using **JWT**  
-- 🪪 Edit user profile and update avatar  
-- 🌐 Real-time online/offline status tracking  
-
-### 🗂️ Extras
-- Responsive, dark-mode friendly **UI** using **Tailwind CSS**
-- Optimized state management with **Redux Toolkit**
-- Seamless backend integration built with **Node.js** + **Express.js**
-- Data stored securely in **MongoDB**
+**Website:** https://vercel-studybuddy.vercel.app
 
 ---
 
-## 🛠️ Tech Stack
+## Features
 
-| Category | Technologies |
-|-----------|---------------|
-| **Frontend** | React, Redux Toolkit, Tiptap, Tailwind CSS |
-| **Backend** | Node.js, Express.js, MongoDB |
-| **Real-time** | Socket.IO, Yjs, y-websocket |
-| **File-upload** | Cloudinary |
-| **Authentication** | JSON Web Tokens (JWT) |
-| **State Management** | Redux Toolkit |
+### Real-Time Collaborative Editor
+
+- Collaborate on documents with multiple users simultaneously.
+- Changes are synchronized instantly using Yjs and y-websocket.
+- Built with the Tiptap rich text editor for a modern editing experience.
+
+### Real-Time Communication
+
+- Group chat for every channel.
+- Private one-to-one messaging between users.
+- Online/offline presence updates.
+- Typing indicators for active conversations.
+
+### Channel Management
+
+- Create new collaboration channels.
+- Update channel details.
+- Add or remove members.
+- Delete channels when no longer needed.
+- Organize workspaces for different teams or projects.
+
+### User Authentication
+
+- Secure registration and login using JWT authentication.
+- Profile management with avatar support.
+- Protected routes and authenticated API access.
+
+### Responsive Interface
+
+- Responsive design for desktop and mobile devices.
+- Clean user interface built with Tailwind CSS.
+- Fast navigation and optimized state management using Redux Toolkit.
+
+---
+
+## Tech Stack
+
+### Frontend
+
+- React
+- Redux Toolkit
+- Tailwind CSS
+- Tiptap Editor
+- Axios
+
+### Backend
+
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+
+### Real-Time Technologies
+
+- Socket.IO
+- Yjs
+- y-websocket
+
+### Authentication
+
+- JSON Web Tokens (JWT)
+
+### Media Storage
+
+- Cloudinary
+
+---
+
+## Project Structure
+
+```
+studybuddy/
+├── client/
+│   ├── src/
+│   └── public/
+│
+├── server/
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── middleware/
+│   ├── sockets/
+│   └── utils/
+│
+└── README.md
+```
+
+---
+
+## Getting Started
+
+### Clone the repository
+
+```bash
+git clone https://github.com/your-username/studybuddy.git
+cd studybuddy
+```
+
+### Install dependencies
+
+For the frontend:
+
+```bash
+cd client
+npm install
+```
+
+For the backend:
+
+```bash
+cd ../server
+npm install
+```
+
+### Environment Variables
+
+Create a `.env` file inside the server directory and configure the required environment variables.
+
+Example:
+
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+CLIENT_URL=http://localhost:5173
+```
+
+### Run the application
+
+Backend:
+
+```bash
+npm run dev
+```
+
+Frontend:
+
+```bash
+npm run dev
+```
+
+---
+
+## Future Improvements
+
+- Notifications
+- Video and voice calling
+- File sharing inside channels
+- Document version history
+- Workspace roles and permissions
+- Search across messages and documents
+
+---
+
+## License
+
+This project is developed for learning and portfolio purposes.
